@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1B3A2E" />
+<title>Pizza Tool — Dough Calculator</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+<link rel="alternate icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231B3A2E'/><g transform='translate(0,3)'><path d='M10 18 Q32 6 54 18 L50 23 Q32 12 14 23 Z' fill='%23A07A4F'/><path d='M11 19 Q32 8 53 19 L49 23 Q32 14 15 23 Z' fill='%23D9B681'/><path d='M14 23 Q32 13 50 23 L32 55 Z' fill='%23E15A3F'/><path d='M16 25 Q32 15 48 25 L32 52 Z' fill='%23FFE39A' opacity='0.6'/><circle cx='23' cy='29' r='3.2' fill='%23C13A2C'/><circle cx='41' cy='30' r='3.2' fill='%23C13A2C'/><circle cx='32' cy='42' r='2.8' fill='%23C13A2C'/></g></svg>" />
+<style>
+  /* ---------- Reset + base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    background: #F2EDE3;
+    color: #1B3A2E;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, select { font-family: inherit; }
+
+  /* ---------- Theme tokens ---------- */
+  :root {
+    --bg: #F2EDE3;
+    --card: #FFFFFF;
+    --ink: #1B3A2E;
+    --ink-2: #2A4A3C;
+    --muted: #8A8A8A;
+    --muted-2: #B5B0A6;
+    --mint: #DDEAD7;
+    --mint-2: #C9DFC5;
+    --green: #4F9E63;
+    --green-dark: #3E8650;
+    --coral: #E76F58;
+    --coral-dark: #D6573F;
+    --line: #ECE7DB;
+    --shadow: 0 6px 20px rgba(27, 58, 46, 0.06), 0 1px 3px rgba(27, 58, 46, 0.04);
+    --radius-card: 22px;
+    --radius-pill: 999px;
+  }
+
+  /* ---------- App layout (mobile-first, max width on desktop) ---------- */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+    padding-bottom: 32px;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    background: var(--ink);
+    color: #fff;
+    padding: 18px 20px 18px 20px;
+    padding-top: max(18px, env(safe-area-inset-top));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-emoji { font-size: 34px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); }
+  .brand-text { display: flex; flex-direction: column; line-height: 1; }
+  .brand-title { font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
+  .brand-sub { font-size: 13px; font-weight: 700; color: var(--green); letter-spacing: 2px; margin-top: 4px; }
+  .icon-btn {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    color: #fff;
+    transition: background .15s ease;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.16); }
+  .icon-btn svg { width: 22px; height: 22px; }
+
+  /* ---------- Method tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding: 16px 16px 0 16px;
+  }
+  .tab {
+    flex: 1;
+    padding: 11px 8px;
+    background: #fff;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: var(--ink);
+    text-align: center;
+    border: 2px solid transparent;
+    box-shadow: var(--shadow);
+    transition: all .15s ease;
+  }
+  .tab.active {
+    background: var(--ink);
+    color: #fff;
+  }
+  .tab .tab-sub { display: block; font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; letter-spacing: 0.5px; }
+  .tab.active .tab-sub { color: var(--green); }
+
+  /* ---------- Page intro ---------- */
+  .intro {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px 6px 20px;
+  }
+  .intro-img {
+    width: 78px; height: 78px;
+    flex-shrink: 0;
+    display: grid; place-items: center;
+  }
+  .intro-text h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .intro-text p {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 20px 22px;
+    margin: 12px 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .card-label {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .card-icon {
+    width: 54px; height: 54px;
+    background: var(--mint);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .card-icon svg { width: 38px; height: 38px; color: var(--ink); }
+  .card-icon.tinted-cream { background: #F4E9D5; }
+  .card-icon.tinted-red   { background: #F7D9CF; }
+  .card-icon.tinted-amber { background: #F1E2C5; }
+  .card-icon.tinted-blue  { background: #D9ECF5; }
+
+  /* ---------- Big number + slider ---------- */
+  .big-number {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -1px;
+    margin: 4px 0 18px 0;
+  }
+  .big-number .unit {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--muted-2);
+    margin-left: 4px;
+  }
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #E6E1D6;
+    border-radius: 999px;
+    outline: none;
+    margin: 4px 0 12px 0;
+    background-image: linear-gradient(var(--green), var(--green));
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    cursor: pointer;
+  }
+  .slider::-moz-range-thumb {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    cursor: pointer;
+  }
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 0 2px;
+  }
+  .ticks .active { color: var(--green); }
+
+  /* ---------- Stepper ---------- */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+  }
+  .step-btn {
+    width: 64px; height: 64px;
+    background: var(--mint);
+    border-radius: 18px;
+    display: grid; place-items: center;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ink);
+    transition: transform .08s ease, background .15s ease;
+  }
+  .step-btn:active { transform: scale(0.94); background: var(--mint-2); }
+  .step-value {
+    flex: 1;
+    text-align: center;
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  /* ---------- Ingredient list ---------- */
+  .ingredients { margin-top: 6px; }
+  .ingredient {
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ingredient:last-child { border-bottom: none; }
+  .ing-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--mint);
+    display: grid; place-items: center;
+  }
+  .ing-icon svg { width: 26px; height: 26px; }
+  .ing-name {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .ing-pct {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    text-transform: none;
+  }
+  .ing-amt {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .ing-amt .u {
+    font-size: 14px;
+    color: var(--muted-2);
+    margin-left: 2px;
+    font-weight: 700;
+  }
+
+  /* ---------- Section header (between cards) ---------- */
+  .section-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    padding: 16px 24px 4px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .dot {
+    width: 6px; height: 6px;
+    background: var(--coral);
+    border-radius: 50%;
+  }
+
+  /* ---------- Recipe row ---------- */
+  .recipe-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .recipe-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #FAF7F0;
+    border-radius: 14px;
+  }
+  .recipe-row .r-name { flex: 1; font-weight: 700; font-size: 15px; }
+  .recipe-row .r-meta { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+  .recipe-row .r-actions { display: flex; gap: 6px; }
+  .pill-btn {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--ink);
+    color: #fff;
+    letter-spacing: 0.4px;
+  }
+  .pill-btn.ghost { background: transparent; color: var(--muted); }
+  .pill-btn.ghost:hover { color: var(--coral); }
+  .empty-recipes {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 16px 0 4px 0;
+    font-weight: 500;
+  }
+  .save-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--mint);
+    color: var(--ink);
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .15s ease;
+  }
+  .save-btn:hover { background: var(--mint-2); }
+  .save-btn svg { width: 16px; height: 16px; }
+
+  /* ---------- Settings modal ---------- */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(27, 58, 46, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .modal-back.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 16px 20px 24px 20px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    z-index: 101;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+    max-width: 480px;
+    margin: 0 auto;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  .modal.open { transform: translateY(0); }
+  .modal-grip {
+    width: 44px; height: 4px;
+    background: var(--muted-2);
+    border-radius: 999px;
+    margin: 0 auto 14px auto;
+  }
+  .modal h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .modal p { margin: 0 0 18px 0; color: var(--muted); font-size: 14px; }
+  .field { margin-bottom: 18px; }
+  .field-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px; font-weight: 700;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .field-label .v { color: var(--green); }
+  .modal-close {
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 6px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .modal-close.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 2px solid var(--line);
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .modal-close.ghost:hover {
+    background: #fff;
+    color: var(--coral-dark);
+  }
+
+  /* ---------- Recipe save modal ---------- */
+  .input-line {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    font-size: 16px;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .input-line:focus { border-color: var(--green); }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Hide elements helper */
+  .hidden { display: none !important; }
+
+  /* Small note style */
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Live indicator pill */
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    background: var(--mint);
+    color: var(--green-dark);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(79,158,99,0.5);
+    animation: liveBlink 1.6s infinite;
+  }
+  @keyframes liveBlink {
+    0%   { box-shadow: 0 0 0 0 rgba(79,158,99,0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(79,158,99,0); }
+    100% { box-shadow: 0 0 0 0 rgba(79,158,99,0); }
+  }
+  .ing-amt.flash {
+    animation: amtFlash .4s ease;
+  }
+  @keyframes amtFlash {
+    0%   { color: var(--green); }
+    100% { color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ HEADER ============ -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-emoji">🍕</div>
+      <div class="brand-text">
+        <div class="brand-title">PIZZA</div>
+        <div class="brand-sub">TOOL</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ============ METHOD TABS ============ -->
+  <div class="tabs" role="tablist" aria-label="Dough method">
+    <button class="tab active" data-method="direct" role="tab">Direct<span class="tab-sub">SAME-DAY</span></button>
+    <button class="tab" data-method="biga" role="tab">Biga<span class="tab-sub">STIFF · 45%</span></button>
+    <button class="tab" data-method="poolish" role="tab">Poolish<span class="tab-sub">LIQUID · 100%</span></button>
+  </div>
+
+  <!-- ============ INTRO ============ -->
+  <div class="intro">
+    <div class="intro-img" aria-hidden="true">
+      <!-- dough ball SVG -->
+      <svg viewBox="0 0 100 100" width="78" height="78">
+        <defs>
+          <radialGradient id="dough" cx="40%" cy="38%" r="65%">
+            <stop offset="0%" stop-color="#FFF6E0"/>
+            <stop offset="60%" stop-color="#F2E6C9"/>
+            <stop offset="100%" stop-color="#D9C7A0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="50" cy="80" rx="36" ry="6" fill="#E6DFD0" opacity="0.7"/>
+        <ellipse cx="50" cy="50" rx="38" ry="34" fill="url(#dough)"/>
+        <ellipse cx="38" cy="38" rx="9" ry="5" fill="#FFFEF6" opacity="0.55"/>
+        <circle cx="62" cy="40" r="1.2" fill="#C7B58F"/>
+        <circle cx="55" cy="60" r="0.9" fill="#C7B58F"/>
+        <circle cx="42" cy="55" r="0.9" fill="#C7B58F"/>
+      </svg>
+    </div>
+    <div class="intro-text">
+      <h1>DOUGH CALCULATOR</h1>
+      <p id="introSub">Same-day direct dough — fast and forgiving.</p>
+    </div>
+  </div>
+
+  <!-- ============ NUMBER OF PIZZAS ============ -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-label">Number of Pizzas</div>
+      <div class="card-icon tinted-red" aria-hidden="true">
+        <!-- whole pizza, top-down -->
+        <svg viewBox="0 0 40 40">
+          <!-- crust outer -->
+          <circle cx="20" cy="20" r="16" fill="#D9B681"/>
+          <!-- crust rim shadow -->
+          <circle cx="20" cy="20" r="16" fill="none" stroke="#A07A4F" stroke-width="0.8" opacity="0.4"/>
+          <!-- sauce -->
+          <circle cx="20" cy="20" r="13" fill="#E15A3F"/>
+          <!-- cheese -->
+          <circle cx="20" cy="20" r="13" fill="#FFE39A" opacity="0.55"/>
+          <!-- pepperoni -->
+          <circle cx="15" cy="15" r="2.2" fill="#C13A2C"/>
+          <circle cx="25" cy="14" r="2.2" fill="#C13A2C"/>
+          <circle cx="14" cy="24" r="2.2" fill="#C13A2C"/>
+          <circle cx="25" cy="25" r="2.2" fill="#C13A2C"/>
+          <circle cx="20" cy="20" r="1.6" fill="#C13A2C"/>
+          <!-- pepperoni highlights -->
+          <circle cx="14.4" cy="14.5" r="0.6" fill="#E76050" opacity="0.7"/>
+          <circle cx="24.4" cy="13.5" r="0.6" fill="#E76050" opacity="0.7"/>
+          <!-- basil dots -->
+          <ellipse cx="20" cy="13" rx="1" ry="0.6" fill="#5C8B3F"/>
+          <ellipse cx="18.5" cy="27" rx="1" ry="0.6" fill="#5C8B3F"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stepper">
+      <button class="step-btn" id="pizzaMinus" aria-label="One fewer pizza">−</button>
+      <div class="step-value" id="pizzaCount">6</div>
+      <button class="step-btn" id="pizzaPlus" aria-label="One more pizza">+</button>
+    </div>
+  </section>
+
+  <!-- ============ DOUGH BALL WEIGHT ============ -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-label">Dough Ball Weight</div>
+      <div class="card-icon tinted-cream" aria-hidden="true">
+        <!-- kitchen scale + dough ball -->
+        <svg viewBox="0 0 40 40">
+          <defs>
+            <radialGradient id="ic-dough" cx="40%" cy="38%" r="65%">
+              <stop offset="0%" stop-color="#FFF6E0"/>
+              <stop offset="60%" stop-color="#F2E6C9"/>
+              <stop offset="100%" stop-color="#D9C7A0"/>
+            </radialGradient>
+          </defs>
+          <!-- scale base -->
+          <rect x="9" y="29" width="22" height="5" rx="1.6" fill="#6B7A6F"/>
+          <rect x="9" y="29" width="22" height="2" rx="1" fill="#8DA092"/>
+          <!-- platform -->
+          <rect x="6" y="25" width="28" height="4" rx="2" fill="#A6B5A8"/>
+          <!-- dial / display dot -->
+          <circle cx="27" cy="32" r="1.1" fill="#3E5546"/>
+          <!-- dough ball on platform -->
+          <ellipse cx="20" cy="24" rx="9" ry="2" fill="#C8B98F" opacity="0.55"/>
+          <ellipse cx="20" cy="18" rx="10" ry="9" fill="url(#ic-dough)"/>
+          <ellipse cx="16" cy="14" rx="2.6" ry="1.4" fill="#FFFEF6" opacity="0.7"/>
+          <circle cx="23" cy="16" r="0.5" fill="#C7B58F"/>
+          <circle cx="19" cy="22" r="0.4" fill="#C7B58F"/>
+        </svg>
+      </div>
+    </div>
+    <div class="big-number"><span id="ballWeightVal">250</span><span class="unit">g</span></div>
+    <input type="range" min="150" max="350" step="10" value="250" id="ballWeight" class="slider" aria-label="Dough ball weight" />
+    <div class="ticks" id="ballTicks">
+      <span data-v="150">150 g</span>
+      <span data-v="200">200 g</span>
+      <span data-v="250" class="active">250 g</span>
+      <span data-v="300">300 g</span>
+      <span data-v="350">350 g</span>
+    </div>
+  </section>
+
+  <!-- ============ PRE-FERMENT (only biga/poolish) ============ -->
+  <section class="card hidden" id="prefermentCard">
+    <div class="card-header">
+      <div class="card-label" id="prefermentLabel">Biga · % of flour</div>
+      <div class="card-icon tinted-amber" aria-hidden="true">
+        <!-- glass jar with bubbly pre-ferment -->
+        <svg viewBox="0 0 40 40">
+          <!-- lid -->
+          <rect x="12" y="6" width="16" height="3" rx="0.6" fill="#C9A86A"/>
+          <rect x="11" y="8" width="18" height="2.5" rx="0.6" fill="#A07A4F"/>
+          <!-- jar body -->
+          <path d="M12 10.5 h16 v20 a2 2 0 0 1 -2 2 h-12 a2 2 0 0 1 -2 -2 z"
+                fill="#F5EFE0" stroke="#C9B98F" stroke-width="0.8"/>
+          <!-- contents (bubbly dough) -->
+          <path d="M13 19 q3 -1.5 6 0 t6 0 t2 0 v11 a1.5 1.5 0 0 1 -1.5 1.5 h-11 a1.5 1.5 0 0 1 -1.5 -1.5 z"
+                fill="#E8D5A8"/>
+          <!-- bubbles -->
+          <circle cx="16" cy="22" r="1.4" fill="#FFFAEC" opacity="0.85"/>
+          <circle cx="22" cy="24" r="1.8" fill="#FFFAEC" opacity="0.9"/>
+          <circle cx="25" cy="21" r="1" fill="#FFFAEC" opacity="0.8"/>
+          <circle cx="18" cy="27" r="1.1" fill="#FFFAEC" opacity="0.7"/>
+          <circle cx="24" cy="29" r="0.8" fill="#FFFAEC" opacity="0.75"/>
+          <!-- jar highlight -->
+          <rect x="14" y="12" width="2" height="14" rx="1" fill="#FFFFFF" opacity="0.55"/>
+        </svg>
+      </div>
+    </div>
+    <div class="big-number"><span id="prefermentVal">30</span><span class="unit">%</span></div>
+    <input type="range" min="10" max="100" step="5" value="30" id="prefermentPct" class="slider" aria-label="Pre-ferment percentage" />
+    <div class="ticks" id="prefermentTicks">
+      <span>10%</span>
+      <span>30%</span>
+      <span>50%</span>
+      <span>70%</span>
+      <span>100%</span>
+    </div>
+    <p class="note" id="prefermentNote"></p>
+  </section>
+
+  <!-- ============ TOTAL INGREDIENTS ============ -->
+  <section class="card" id="totalsCard">
+    <div class="card-header">
+      <div class="card-label">Total Ingredients</div>
+      <div class="live-pill" id="livePill" aria-hidden="true">
+        <span class="live-dot"></span>LIVE
+      </div>
+    </div>
+    <div class="ingredients">
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F4E9D5;">
+          <!-- flour bowl -->
+          <svg viewBox="0 0 32 32">
+            <path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/>
+            <path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/>
+            <ellipse cx="16" cy="18.5" rx="9" ry="2.2" fill="#FFFDF4"/>
+            <circle cx="13" cy="17" r="0.8" fill="#E2D6BB"/>
+            <circle cx="19" cy="17.5" r="0.7" fill="#E2D6BB"/>
+          </svg>
+        </div>
+        <div>
+          <span class="ing-name">Flour</span>
+          <span class="ing-pct">100%</span>
+        </div>
+        <div class="ing-amt"><span id="totFlour">1500</span><span class="u" id="totFlourU">g</span></div>
+      </div>
+
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#D9ECF5;">
+          <svg viewBox="0 0 32 32">
+            <path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/>
+            <path d="M12 19 C12 22 14 24 17 24" fill="none" stroke="#fff" stroke-opacity="0.7" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="ing-name">Water</span>
+          <span class="ing-pct" id="totWaterPct">65%</span>
+        </div>
+        <div class="ing-amt"><span id="totWater">975</span><span class="u">g</span></div>
+      </div>
+
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#EDEDED;">
+          <svg viewBox="0 0 32 32">
+            <path d="M11 8 h10 v2 h-10z" fill="#9DA0A0"/>
+            <path d="M10 10 h12 v15 a2 2 0 0 1-2 2 h-8 a2 2 0 0 1-2-2z" fill="#FAFAFA" stroke="#B5B8B8" stroke-width="0.7"/>
+            <circle cx="14" cy="14" r="0.7" fill="#B5B8B8"/>
+            <circle cx="18" cy="14" r="0.7" fill="#B5B8B8"/>
+            <circle cx="16" cy="16" r="0.7" fill="#B5B8B8"/>
+          </svg>
+        </div>
+        <div>
+          <span class="ing-name">Salt</span>
+          <span class="ing-pct" id="totSaltPct">2.8%</span>
+        </div>
+        <div class="ing-amt"><span id="totSalt">42</span><span class="u">g</span></div>
+      </div>
+
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F1E2C5;">
+          <svg viewBox="0 0 32 32">
+            <rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/>
+            <rect x="7" y="9" width="18" height="14" rx="2" fill="none" stroke="#A07A4F" stroke-width="0.8"/>
+            <path d="M7 16 h18 M16 9 v14" stroke="#A07A4F" stroke-width="0.6" opacity="0.5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="ing-name">Yeast</span>
+          <span class="ing-pct" id="totYeastPct">0.3% (IDY)</span>
+        </div>
+        <div class="ing-amt"><span id="totYeast">4.5</span><span class="u">g</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRE-FERMENT BREAKDOWN ============ -->
+  <div class="section-title hidden" id="pfBreakdownTitle"><span class="dot"></span> Pre-ferment <span id="pfBreakdownMethod">(Biga)</span></div>
+  <section class="card hidden" id="pfBreakdownCard">
+    <p class="note" id="pfTimeNote" style="margin: 0 0 8px 0;"></p>
+    <div class="ingredients">
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F4E9D5;">
+          <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
+        </div>
+        <div><span class="ing-name">Flour</span><span class="ing-pct" id="pfFlourPct">30% of total</span></div>
+        <div class="ing-amt"><span id="pfFlour">450</span><span class="u">g</span></div>
+      </div>
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#D9ECF5;">
+          <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
+        </div>
+        <div><span class="ing-name">Water</span><span class="ing-pct" id="pfWaterPct">45%</span></div>
+        <div class="ing-amt"><span id="pfWater">203</span><span class="u">g</span></div>
+      </div>
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F1E2C5;">
+          <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
+        </div>
+        <div><span class="ing-name">Yeast</span><span class="ing-pct" id="pfYeastPct">0.1%</span></div>
+        <div class="ing-amt"><span id="pfYeast">0.5</span><span class="u">g</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL DOUGH BREAKDOWN ============ -->
+  <div class="section-title hidden" id="finalTitle"><span class="dot"></span> Final dough mix</div>
+  <section class="card hidden" id="finalCard">
+    <p class="note" style="margin: 0 0 8px 0;">Combine with the matured pre-ferment.</p>
+    <div class="ingredients">
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F4E9D5;">
+          <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
+        </div>
+        <div><span class="ing-name">Flour</span></div>
+        <div class="ing-amt"><span id="fdFlour">1050</span><span class="u">g</span></div>
+      </div>
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#D9ECF5;">
+          <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
+        </div>
+        <div><span class="ing-name">Water</span></div>
+        <div class="ing-amt"><span id="fdWater">772</span><span class="u">g</span></div>
+      </div>
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#EDEDED;">
+          <svg viewBox="0 0 32 32"><rect x="10" y="10" width="12" height="15" rx="2" fill="#FAFAFA" stroke="#B5B8B8"/><path d="M11 8 h10 v2 h-10z" fill="#9DA0A0"/></svg>
+        </div>
+        <div><span class="ing-name">Salt</span></div>
+        <div class="ing-amt"><span id="fdSalt">42</span><span class="u">g</span></div>
+      </div>
+      <div class="ingredient">
+        <div class="ing-icon" style="background:#F1E2C5;">
+          <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
+        </div>
+        <div><span class="ing-name">Yeast</span></div>
+        <div class="ing-amt"><span id="fdYeast">4</span><span class="u">g</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECIPES ============ -->
+  <div class="section-title"><span class="dot"></span> My Recipes</div>
+  <section class="card">
+    <div id="recipeList" class="recipe-list"></div>
+    <div id="emptyRecipes" class="empty-recipes">No saved recipes yet. Tap below to save the current settings.</div>
+    <button class="save-btn" id="saveRecipeBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+      Save current as recipe
+    </button>
+  </section>
+
+  <div style="height: 24px;"></div>
+
+</div>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="modal-back" id="modalBack"></div>
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="modal-grip"></div>
+  <h2 id="settingsTitle">Recipe settings</h2>
+  <p>Tweak the defaults that fit your style and oven.</p>
+
+  <div class="field">
+    <div class="field-label">Hydration <span class="v"><span id="hydrationVal">65</span>%</span></div>
+    <input type="range" min="55" max="85" step="1" value="65" id="hydration" class="slider" />
+    <p class="note">60–65% standard Neapolitan, 70%+ for wetter, more open crumb.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Salt <span class="v"><span id="saltPctVal">2.8</span>%</span></div>
+    <input type="range" min="1.5" max="4" step="0.1" value="2.8" id="saltPct" class="slider" />
+  </div>
+
+  <div class="field">
+    <div class="field-label">Yeast (instant dry) <span class="v"><span id="yeastPctVal">0.3</span>%</span></div>
+    <input type="range" min="0.05" max="1.5" step="0.05" value="0.3" id="yeastPct" class="slider" />
+    <p class="note">~0.1% for long cold ferments, ~0.3% same-day, ~1% for fast 2–4 h proofs.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Yeast type</div>
+    <select id="yeastType" class="input-line">
+      <option value="idy">Instant Dry Yeast (IDY)</option>
+      <option value="ady">Active Dry Yeast (ADY) — ×1.25</option>
+      <option value="fresh">Fresh / Cake Yeast — ×3</option>
+    </select>
+  </div>
+
+  <div class="field" id="bigaHydField">
+    <div class="field-label">Biga hydration <span class="v"><span id="bigaHydVal">45</span>%</span></div>
+    <input type="range" min="40" max="60" step="1" value="45" id="bigaHyd" class="slider" />
+    <p class="note">Classic biga: 44–48%. Higher = looser, easier to mix.</p>
+  </div>
+
+  <button class="modal-close ghost" id="resetSettings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:8px;">
+      <polyline points="1 4 1 10 7 10"/>
+      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+    </svg>
+    Reset to defaults
+  </button>
+  <button class="modal-close" id="closeSettings">Done</button>
+</div>
+
+<!-- ============ SAVE RECIPE MODAL ============ -->
+<div class="modal-back" id="saveModalBack"></div>
+<div class="modal" id="saveModal" role="dialog" aria-modal="true">
+  <div class="modal-grip"></div>
+  <h2>Save recipe</h2>
+  <p>Give this dough a name. Stored locally in your browser.</p>
+  <input type="text" id="recipeName" class="input-line" placeholder="e.g. My Neapolitan 65%" maxlength="40" />
+  <div style="display:flex; gap:10px; margin-top:14px;">
+    <button class="modal-close" id="cancelSave" style="background:#fff; color:var(--ink); border:2px solid var(--line);">Cancel</button>
+    <button class="modal-close" id="confirmSave">Save</button>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast">Saved</div>
+
+<script>
+/* ===========================================================
+   PIZZA TOOL — dough math + UI
+   =========================================================== */
+
+// --------- Defaults & state ---------
+const DEFAULTS = {
+  method: 'direct',
+  ballWeight: 250,
+  hydration: 65,
+  pizzas: 6,
+  prefermentPct: 30,
+  saltPct: 2.8,
+  yeastPct: 0.3,
+  yeastType: 'idy',
+  bigaHyd: 45,
+};
+const state = { ...DEFAULTS };
+
+// --------- Constants ---------
+const POOLISH_HYD = 100;     // poolish is always 100%
+const YEAST_MULT = { idy: 1, ady: 1.25, fresh: 3 };
+const PF_PCT_LIMITS = {
+  biga:    { min: 30, max: 100, default: 50, ticks: [30, 50, 70, 100] },
+  poolish: { min: 10, max: 50,  default: 30, ticks: [10, 20, 30, 40, 50] },
+};
+
+// --------- Helpers ---------
+const $ = (id) => document.getElementById(id);
+function setAmt(id, val) {
+  const el = $(id);
+  if (!el || el.textContent === String(val)) return;
+  el.textContent = val;
+  const wrap = el.closest('.ing-amt');
+  if (wrap) {
+    wrap.classList.remove('flash');
+    void wrap.offsetWidth; // restart anim
+    wrap.classList.add('flash');
+  }
+}
+const fmt = (g) => {
+  if (g >= 1000) return (g/1000).toFixed(g % 1000 === 0 ? 0 : 3);
+  if (g >= 100) return Math.round(g).toString();
+  if (g >= 10) return (Math.round(g*10)/10).toString();
+  return (Math.round(g*10)/10).toString();
+};
+const unitFor = (g) => g >= 1000 ? 'kg' : 'g';
+
+// --------- Core math ---------
+function calculate() {
+  const totalDough = state.ballWeight * state.pizzas;
+  const yMult = YEAST_MULT[state.yeastType] || 1;
+  const yPct = state.yeastPct * yMult;
+
+  // Total ingredients via baker's % math
+  const ratio = 1 + state.hydration/100 + state.saltPct/100 + yPct/100;
+  const totalFlour = totalDough / ratio;
+  const totalWater = totalFlour * state.hydration / 100;
+  const totalSalt  = totalFlour * state.saltPct / 100;
+  const totalYeast = totalFlour * yPct / 100;
+
+  let pf = null, fd = null;
+  if (state.method === 'biga' || state.method === 'poolish') {
+    const pfHyd = state.method === 'biga' ? state.bigaHyd : POOLISH_HYD;
+    const pfFlour = totalFlour * state.prefermentPct / 100;
+    const pfWater = pfFlour * pfHyd / 100;
+    // pre-ferment yeast: a small fraction of total yeast
+    // poolish: very small (long fermentation), biga: ~1% of biga flour
+    const pfYeast = state.method === 'biga'
+      ? Math.min(totalYeast * 0.5, pfFlour * 0.01) // up to half the total yeast or 1% of pf flour
+      : Math.min(totalYeast * 0.4, pfFlour * 0.005);
+
+    const fdFlour = totalFlour - pfFlour;
+    const fdWater = totalWater - pfWater;
+    const fdSalt  = totalSalt;
+    const fdYeast = Math.max(0, totalYeast - pfYeast);
+
+    pf = { flour: pfFlour, water: pfWater, yeast: pfYeast, hyd: pfHyd };
+    fd = { flour: fdFlour, water: fdWater, salt: fdSalt, yeast: fdYeast };
+  }
+
+  return { totalDough, totalFlour, totalWater, totalSalt, totalYeast, yPct, pf, fd };
+}
+
+// --------- Render ---------
+function render() {
+  const r = calculate();
+
+  // Big numbers / pct text
+  $('ballWeightVal').textContent = state.ballWeight;
+  $('hydrationVal').textContent  = state.hydration;
+  $('pizzaCount').textContent    = state.pizzas;
+  $('prefermentVal').textContent = state.prefermentPct;
+  $('saltPctVal').textContent    = state.saltPct.toFixed(1);
+  $('yeastPctVal').textContent   = state.yeastPct.toFixed(2);
+  $('bigaHydVal').textContent    = state.bigaHyd;
+
+  // Slider gradient fill (visual)
+  setSliderFill('ballWeight');
+  setSliderFill('hydration');
+  setSliderFill('prefermentPct');
+  setSliderFill('saltPct');
+  setSliderFill('yeastPct');
+  setSliderFill('bigaHyd');
+
+  // Total ingredients (with flash on change)
+  setAmt('totFlour', fmt(r.totalFlour));
+  $('totFlourU').textContent = unitFor(r.totalFlour);
+  setAmt('totWater', fmt(r.totalWater));
+  setAmt('totSalt',  fmt(r.totalSalt));
+  setAmt('totYeast', fmt(r.totalYeast));
+  $('totWaterPct').textContent = state.hydration + '%';
+  $('totSaltPct').textContent  = state.saltPct.toFixed(1) + '%';
+  const yeastTypeLbl = { idy: 'IDY', ady: 'ADY', fresh: 'fresh' }[state.yeastType];
+  $('totYeastPct').textContent = `${(r.yPct).toFixed(2)}% (${yeastTypeLbl})`;
+
+  // Pre-ferment cards
+  const isPF = state.method !== 'direct';
+  ['pfBreakdownTitle','pfBreakdownCard','finalTitle','finalCard','prefermentCard'].forEach(id => {
+    $(id).classList.toggle('hidden', !isPF);
+  });
+
+  if (isPF) {
+    const methodName = state.method === 'biga' ? 'Biga' : 'Poolish';
+    $('prefermentLabel').textContent = `${methodName} · % of flour`;
+    $('pfBreakdownMethod').textContent = `(${methodName})`;
+    setAmt('pfFlour', fmt(r.pf.flour));
+    setAmt('pfWater', fmt(r.pf.water));
+    setAmt('pfYeast', fmt(r.pf.yeast));
+    $('pfFlourPct').textContent = state.prefermentPct + '% of total';
+    $('pfWaterPct').textContent = r.pf.hyd + '% (hydration)';
+    setAmt('fdFlour', fmt(r.fd.flour));
+    setAmt('fdWater', fmt(r.fd.water));
+    setAmt('fdSalt',  fmt(r.fd.salt));
+    setAmt('fdYeast', fmt(r.fd.yeast));
+
+    // Pre-ferment time guidance
+    const guide = state.method === 'biga'
+      ? 'Ferment 16–24 h at 16–18 °C (or 12–14 h at room temp).'
+      : 'Ferment 12–16 h at room temp until bubbly and slightly domed.';
+    $('pfTimeNote').textContent = guide;
+
+    // Tick presets for preferment %
+    const lim = PF_PCT_LIMITS[state.method];
+    $('prefermentPct').min = lim.min;
+    $('prefermentPct').max = lim.max;
+    const ticksEl = $('prefermentTicks');
+    ticksEl.innerHTML = lim.ticks.map(v => `<span data-v="${v}">${v}%</span>`).join('');
+    // mark closest tick active
+    let closest = lim.ticks[0], diff = Infinity;
+    lim.ticks.forEach(v => { if (Math.abs(v-state.prefermentPct) < diff) { diff = Math.abs(v-state.prefermentPct); closest = v; } });
+    [...ticksEl.children].forEach(s => s.classList.toggle('active', +s.dataset.v === closest));
+
+    // Note about default range
+    $('prefermentNote').textContent = state.method === 'biga'
+      ? 'Classic biga uses 50–100% of total flour. Higher = more flavour, longer rise.'
+      : 'Classic poolish uses 20–40% of total flour. Higher = more open crumb.';
+  }
+
+  // Ball weight tick highlighting
+  highlightTicks('ballTicks', state.ballWeight);
+
+  // Intro line
+  const introMap = {
+    direct: 'Same-day direct dough — fast and forgiving.',
+    biga:   'Biga: a stiff Italian pre-ferment — chewy, complex crust.',
+    poolish: 'Poolish: a wet French pre-ferment — open, airy crumb.',
+  };
+  $('introSub').textContent = introMap[state.method];
+
+  // Show/hide biga-specific setting
+  $('bigaHydField').style.display = state.method === 'biga' ? 'block' : 'none';
+
+  // Tabs visual
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.method === state.method);
+  });
+
+  // Persist last state
+  localStorage.setItem('pizzaTool:lastState', JSON.stringify(state));
+}
+
+function highlightTicks(containerId, value) {
+  const c = $(containerId);
+  if (!c) return;
+  let closest = null, diff = Infinity;
+  [...c.children].forEach(s => {
+    const v = +s.dataset.v;
+    if (!isNaN(v)) {
+      if (Math.abs(v - value) < diff) { diff = Math.abs(v - value); closest = s; }
+    }
+  });
+  [...c.children].forEach(s => s.classList.remove('active'));
+  if (closest) closest.classList.add('active');
+}
+
+function setSliderFill(id) {
+  const el = $(id);
+  if (!el) return;
+  const min = +el.min, max = +el.max, val = +el.value;
+  const pct = ((val - min) / (max - min)) * 100;
+  el.style.backgroundSize = `${pct}% 100%`;
+}
+
+// --------- Event wiring ---------
+function bindInputs() {
+  // Method tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      state.method = tab.dataset.method;
+      // Reset preferment % when switching to keep it within range
+      if (state.method !== 'direct') {
+        const lim = PF_PCT_LIMITS[state.method];
+        if (state.prefermentPct < lim.min) state.prefermentPct = lim.default;
+        if (state.prefermentPct > lim.max) state.prefermentPct = lim.default;
+        $('prefermentPct').value = state.prefermentPct;
+      }
+      render();
+    });
+  });
+
+  // Sliders
+  $('ballWeight').addEventListener('input', e => { state.ballWeight = +e.target.value; render(); });
+  $('hydration').addEventListener('input',  e => { state.hydration = +e.target.value; render(); });
+  $('prefermentPct').addEventListener('input', e => { state.prefermentPct = +e.target.value; render(); });
+  $('saltPct').addEventListener('input',    e => { state.saltPct = +e.target.value; render(); });
+  $('yeastPct').addEventListener('input',   e => { state.yeastPct = +e.target.value; render(); });
+  $('bigaHyd').addEventListener('input',    e => { state.bigaHyd = +e.target.value; render(); });
+  $('yeastType').addEventListener('change', e => { state.yeastType = e.target.value; render(); });
+
+  // Stepper
+  $('pizzaPlus').addEventListener('click', () => { if (state.pizzas < 30) { state.pizzas++; render(); }});
+  $('pizzaMinus').addEventListener('click', () => { if (state.pizzas > 1)  { state.pizzas--; render(); }});
+
+  // Tap a tick to jump to it
+  document.querySelectorAll('.ticks span[data-v]').forEach(span => {
+    span.addEventListener('click', () => {
+      // figure out which slider this tick belongs to
+      const card = span.closest('.card');
+      const slider = card.querySelector('input[type=range]');
+      if (slider) {
+        slider.value = span.dataset.v;
+        slider.dispatchEvent(new Event('input'));
+      }
+    });
+  });
+
+  // Settings modal
+  $('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+  $('closeSettings').addEventListener('click', () => closeModal('settingsModal'));
+  $('modalBack').addEventListener('click', () => closeModal('settingsModal'));
+
+  // Reset to defaults — restores every field in the settings modal (and method/pizzas/ball/preferment too)
+  $('resetSettings').addEventListener('click', () => {
+    Object.assign(state, DEFAULTS);
+    // sync DOM controls
+    $('hydration').value     = state.hydration;
+    $('saltPct').value       = state.saltPct;
+    $('yeastPct').value      = state.yeastPct;
+    $('yeastType').value     = state.yeastType;
+    $('bigaHyd').value       = state.bigaHyd;
+    $('ballWeight').value    = state.ballWeight;
+    $('prefermentPct').value = state.prefermentPct;
+    render();
+    showToast('Reset to defaults');
+  });
+
+  // Save modal
+  $('saveRecipeBtn').addEventListener('click', () => {
+    $('recipeName').value = '';
+    openModal('saveModal');
+    setTimeout(() => $('recipeName').focus(), 250);
+  });
+  $('cancelSave').addEventListener('click', () => closeModal('saveModal'));
+  $('saveModalBack').addEventListener('click', () => closeModal('saveModal'));
+  $('confirmSave').addEventListener('click', saveRecipe);
+  $('recipeName').addEventListener('keydown', e => { if (e.key === 'Enter') saveRecipe(); });
+
+}
+
+// --------- Modal helpers ---------
+function openModal(id) {
+  $(id).classList.add('open');
+  // back overlay
+  if (id === 'settingsModal') $('modalBack').classList.add('open');
+  if (id === 'saveModal') $('saveModalBack').classList.add('open');
+}
+function closeModal(id) {
+  $(id).classList.remove('open');
+  $('modalBack').classList.remove('open');
+  $('saveModalBack').classList.remove('open');
+}
+
+// --------- Toast ---------
+let toastTimer;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// --------- Recipes (localStorage) ---------
+const RECIPE_KEY = 'pizzaTool:recipes';
+
+function getRecipes() {
+  try { return JSON.parse(localStorage.getItem(RECIPE_KEY) || '[]'); }
+  catch { return []; }
+}
+function setRecipes(list) {
+  localStorage.setItem(RECIPE_KEY, JSON.stringify(list));
+}
+
+function saveRecipe() {
+  const name = $('recipeName').value.trim();
+  if (!name) { showToast('Name required'); return; }
+  const list = getRecipes();
+  const recipe = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    name,
+    ts: Date.now(),
+    state: { ...state },
+  };
+  list.unshift(recipe);
+  setRecipes(list);
+  closeModal('saveModal');
+  renderRecipes();
+  showToast('Recipe saved');
+}
+
+function loadRecipe(id) {
+  const list = getRecipes();
+  const r = list.find(x => x.id === id);
+  if (!r) return;
+  Object.assign(state, r.state);
+  // sync slider DOM
+  $('ballWeight').value = state.ballWeight;
+  $('hydration').value  = state.hydration;
+  $('prefermentPct').value = state.prefermentPct;
+  $('saltPct').value    = state.saltPct;
+  $('yeastPct').value   = state.yeastPct;
+  $('bigaHyd').value    = state.bigaHyd;
+  $('yeastType').value  = state.yeastType;
+  render();
+  showToast(`Loaded "${r.name}"`);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteRecipe(id) {
+  let list = getRecipes();
+  list = list.filter(x => x.id !== id);
+  setRecipes(list);
+  renderRecipes();
+  showToast('Deleted');
+}
+
+function renderRecipes() {
+  const list = getRecipes();
+  const wrap = $('recipeList');
+  const empty = $('emptyRecipes');
+  wrap.innerHTML = '';
+  if (!list.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'recipe-row';
+    const m = r.state.method.charAt(0).toUpperCase() + r.state.method.slice(1);
+    row.innerHTML = `
+      <div style="flex:1;">
+        <div class="r-name"></div>
+        <div class="r-meta">${m} · ${r.state.pizzas}× ${r.state.ballWeight}g · ${r.state.hydration}% hydration</div>
+      </div>
+      <div class="r-actions">
+        <button class="pill-btn load">Load</button>
+        <button class="pill-btn ghost del" aria-label="Delete">✕</button>
+      </div>
+    `;
+    row.querySelector('.r-name').textContent = r.name;
+    row.querySelector('.load').addEventListener('click', () => loadRecipe(r.id));
+    const delBtn = row.querySelector('.del');
+    let armed = false, armTimer = null;
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!armed) {
+        armed = true;
+        delBtn.textContent = 'Sure?';
+        delBtn.classList.remove('ghost');
+        delBtn.style.background = 'var(--coral)';
+        delBtn.style.color = '#fff';
+        armTimer = setTimeout(() => {
+          armed = false;
+          delBtn.textContent = '✕';
+          delBtn.classList.add('ghost');
+          delBtn.style.background = '';
+          delBtn.style.color = '';
+        }, 2500);
+      } else {
+        clearTimeout(armTimer);
+        deleteRecipe(r.id);
+      }
+    });
+    wrap.appendChild(row);
+  });
+}
+
+// --------- Restore last state ---------
+function restoreLastState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('pizzaTool:lastState'));
+    if (s && typeof s === 'object') {
+      Object.assign(state, s);
+      $('ballWeight').value = state.ballWeight;
+      $('hydration').value  = state.hydration;
+      $('prefermentPct').value = state.prefermentPct;
+      $('saltPct').value    = state.saltPct;
+      $('yeastPct').value   = state.yeastPct;
+      $('bigaHyd').value    = state.bigaHyd;
+      $('yeastType').value  = state.yeastType;
+    }
+  } catch {}
+}
+
+// --------- Init ---------
+document.addEventListener('DOMContentLoaded', () => {
+  restoreLastState();
+  bindInputs();
+  renderRecipes();
+  render();
+});
+</script>
+
+</body>
+</html>
