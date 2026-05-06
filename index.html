@@ -255,12 +255,19 @@
     cursor: pointer;
   }
   .ticks {
-    display: flex;
-    justify-content: space-between;
+    position: relative;
+    height: 18px;
     font-size: 12px;
     font-weight: 600;
     color: var(--muted);
-    padding: 0 2px;
+    margin-top: 2px;
+  }
+  .ticks span {
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    cursor: pointer;
+    transform: translateX(-50%);
   }
   .ticks .active { color: var(--green); }
 
@@ -528,6 +535,54 @@
     line-height: 1.4;
   }
 
+  /* Collapsible "% of flour" adjuster inside the Day 1 card */
+  .adjust-row {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .adjust-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 2px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    gap: 10px;
+  }
+  .adjust-label {
+    flex: 1;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--ink-2);
+    text-transform: uppercase;
+  }
+  .adjust-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--green-dark);
+  }
+  .adjust-chevron {
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+    transition: transform .25s ease;
+    flex-shrink: 0;
+  }
+  .adjust-toggle[aria-expanded="true"] .adjust-chevron {
+    transform: rotate(180deg);
+  }
+  .adjust-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .25s ease;
+  }
+  .adjust-body.open { max-height: 240px; }
+  .adjust-body-inner { padding-top: 8px; }
+
   /* Live indicator pill */
   .live-pill {
     display: inline-flex;
@@ -572,7 +627,7 @@
       <div class="brand-emoji">🍕</div>
       <div class="brand-text">
         <div class="brand-title">PIZZA</div>
-        <div class="brand-sub">TOOL</div>
+        <div class="brand-sub" data-i18n="header.tool">TOOL</div>
       </div>
     </div>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
@@ -585,9 +640,9 @@
 
   <!-- ============ METHOD TABS ============ -->
   <div class="tabs" role="tablist" aria-label="Dough method">
-    <button class="tab active" data-method="direct" role="tab">Direct<span class="tab-sub">SAME-DAY</span></button>
-    <button class="tab" data-method="biga" role="tab">Biga<span class="tab-sub">STIFF · 45%</span></button>
-    <button class="tab" data-method="poolish" role="tab">Poolish<span class="tab-sub">LIQUID · 100%</span></button>
+    <button class="tab active" data-method="poolish" role="tab"><span data-i18n="tab.poolish">Poolish</span><span class="tab-sub" data-i18n="tab.poolishSub">LIQUID · 100%</span></button>
+    <button class="tab" data-method="biga" role="tab"><span data-i18n="tab.biga">Biga</span><span class="tab-sub" data-i18n="tab.bigaSub">STIFF · 45%</span></button>
+    <button class="tab" data-method="direct" role="tab"><span data-i18n="tab.direct">Direct</span><span class="tab-sub" data-i18n="tab.directSub">SAME-DAY</span></button>
   </div>
 
   <!-- ============ INTRO ============ -->
@@ -611,7 +666,7 @@
       </svg>
     </div>
     <div class="intro-text">
-      <h1>DOUGH CALCULATOR</h1>
+      <h1 data-i18n="intro.title">DOUGH CALCULATOR</h1>
       <p id="introSub">Same-day direct dough — fast and forgiving.</p>
     </div>
   </div>
@@ -619,7 +674,7 @@
   <!-- ============ NUMBER OF PIZZAS ============ -->
   <section class="card">
     <div class="card-header">
-      <div class="card-label">Number of Pizzas</div>
+      <div class="card-label" data-i18n="card.pizzas">Number of Pizzas</div>
       <div class="card-icon tinted-red" aria-hidden="true">
         <!-- whole pizza, top-down -->
         <svg viewBox="0 0 40 40">
@@ -647,16 +702,16 @@
       </div>
     </div>
     <div class="stepper">
-      <button class="step-btn" id="pizzaMinus" aria-label="One fewer pizza">−</button>
+      <button class="step-btn" id="pizzaMinus" data-i18n-aria="aria.minus" aria-label="One fewer pizza">−</button>
       <div class="step-value" id="pizzaCount">6</div>
-      <button class="step-btn" id="pizzaPlus" aria-label="One more pizza">+</button>
+      <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza">+</button>
     </div>
   </section>
 
   <!-- ============ DOUGH BALL WEIGHT ============ -->
   <section class="card">
     <div class="card-header">
-      <div class="card-label">Dough Ball Weight</div>
+      <div class="card-label" data-i18n="card.weight">Dough Ball Weight</div>
       <div class="card-icon tinted-cream" aria-hidden="true">
         <!-- kitchen scale + dough ball -->
         <svg viewBox="0 0 40 40">
@@ -694,49 +749,10 @@
     </div>
   </section>
 
-  <!-- ============ PRE-FERMENT (only biga/poolish) ============ -->
-  <section class="card hidden" id="prefermentCard">
-    <div class="card-header">
-      <div class="card-label" id="prefermentLabel">Biga · % of flour</div>
-      <div class="card-icon tinted-amber" aria-hidden="true">
-        <!-- glass jar with bubbly pre-ferment -->
-        <svg viewBox="0 0 40 40">
-          <!-- lid -->
-          <rect x="12" y="6" width="16" height="3" rx="0.6" fill="#C9A86A"/>
-          <rect x="11" y="8" width="18" height="2.5" rx="0.6" fill="#A07A4F"/>
-          <!-- jar body -->
-          <path d="M12 10.5 h16 v20 a2 2 0 0 1 -2 2 h-12 a2 2 0 0 1 -2 -2 z"
-                fill="#F5EFE0" stroke="#C9B98F" stroke-width="0.8"/>
-          <!-- contents (bubbly dough) -->
-          <path d="M13 19 q3 -1.5 6 0 t6 0 t2 0 v11 a1.5 1.5 0 0 1 -1.5 1.5 h-11 a1.5 1.5 0 0 1 -1.5 -1.5 z"
-                fill="#E8D5A8"/>
-          <!-- bubbles -->
-          <circle cx="16" cy="22" r="1.4" fill="#FFFAEC" opacity="0.85"/>
-          <circle cx="22" cy="24" r="1.8" fill="#FFFAEC" opacity="0.9"/>
-          <circle cx="25" cy="21" r="1" fill="#FFFAEC" opacity="0.8"/>
-          <circle cx="18" cy="27" r="1.1" fill="#FFFAEC" opacity="0.7"/>
-          <circle cx="24" cy="29" r="0.8" fill="#FFFAEC" opacity="0.75"/>
-          <!-- jar highlight -->
-          <rect x="14" y="12" width="2" height="14" rx="1" fill="#FFFFFF" opacity="0.55"/>
-        </svg>
-      </div>
-    </div>
-    <div class="big-number"><span id="prefermentVal">30</span><span class="unit">%</span></div>
-    <input type="range" min="10" max="100" step="5" value="30" id="prefermentPct" class="slider" aria-label="Pre-ferment percentage" />
-    <div class="ticks" id="prefermentTicks">
-      <span>10%</span>
-      <span>30%</span>
-      <span>50%</span>
-      <span>70%</span>
-      <span>100%</span>
-    </div>
-    <p class="note" id="prefermentNote"></p>
-  </section>
-
   <!-- ============ TOTAL INGREDIENTS ============ -->
   <section class="card" id="totalsCard">
     <div class="card-header">
-      <div class="card-label">Total Ingredients</div>
+      <div class="card-label" data-i18n="card.totals">Total Ingredients</div>
       <div class="live-pill" id="livePill" aria-hidden="true">
         <span class="live-dot"></span>LIVE
       </div>
@@ -754,7 +770,7 @@
           </svg>
         </div>
         <div>
-          <span class="ing-name">Flour</span>
+          <span class="ing-name" data-i18n="ing.flour">Flour</span>
           <span class="ing-pct">100%</span>
         </div>
         <div class="ing-amt"><span id="totFlour">1500</span><span class="u" id="totFlourU">g</span></div>
@@ -768,7 +784,7 @@
           </svg>
         </div>
         <div>
-          <span class="ing-name">Water</span>
+          <span class="ing-name" data-i18n="ing.water">Water</span>
           <span class="ing-pct" id="totWaterPct">65%</span>
         </div>
         <div class="ing-amt"><span id="totWater">975</span><span class="u">g</span></div>
@@ -785,7 +801,7 @@
           </svg>
         </div>
         <div>
-          <span class="ing-name">Salt</span>
+          <span class="ing-name" data-i18n="ing.salt">Salt</span>
           <span class="ing-pct" id="totSaltPct">2.8%</span>
         </div>
         <div class="ing-amt"><span id="totSalt">42</span><span class="u">g</span></div>
@@ -800,7 +816,7 @@
           </svg>
         </div>
         <div>
-          <span class="ing-name">Yeast</span>
+          <span class="ing-name" data-i18n="ing.yeast">Yeast</span>
           <span class="ing-pct" id="totYeastPct">0.3% (IDY)</span>
         </div>
         <div class="ing-amt"><span id="totYeast">4.5</span><span class="u">g</span></div>
@@ -809,7 +825,7 @@
   </section>
 
   <!-- ============ PRE-FERMENT BREAKDOWN ============ -->
-  <div class="section-title hidden" id="pfBreakdownTitle"><span class="dot"></span> Pre-ferment <span id="pfBreakdownMethod">(Biga)</span></div>
+  <div class="section-title hidden" id="pfBreakdownTitle"><span class="dot"></span> <span data-i18n="sec.preferment">Day 1 — Pre-ferment</span> <span id="pfBreakdownMethod">(Biga)</span></div>
   <section class="card hidden" id="pfBreakdownCard">
     <p class="note" id="pfTimeNote" style="margin: 0 0 8px 0;"></p>
     <div class="ingredients">
@@ -817,74 +833,98 @@
         <div class="ing-icon" style="background:#F4E9D5;">
           <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
         </div>
-        <div><span class="ing-name">Flour</span><span class="ing-pct" id="pfFlourPct">30% of total</span></div>
+        <div><span class="ing-name" data-i18n="ing.flour">Flour</span><span class="ing-pct" id="pfFlourPct">30% of total</span></div>
         <div class="ing-amt"><span id="pfFlour">450</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
         <div class="ing-icon" style="background:#D9ECF5;">
           <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
         </div>
-        <div><span class="ing-name">Water</span><span class="ing-pct" id="pfWaterPct">45%</span></div>
+        <div><span class="ing-name" data-i18n="ing.water">Water</span><span class="ing-pct" id="pfWaterPct">45%</span></div>
         <div class="ing-amt"><span id="pfWater">203</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
         <div class="ing-icon" style="background:#F1E2C5;">
           <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
         </div>
-        <div><span class="ing-name">Yeast</span><span class="ing-pct" id="pfYeastPct">0.1%</span></div>
+        <div><span class="ing-name" data-i18n="ing.yeast">Yeast</span><span class="ing-pct" id="pfYeastPct">0.1%</span></div>
         <div class="ing-amt"><span id="pfYeast">0.5</span><span class="u">g</span></div>
+      </div>
+    </div>
+
+    <!-- Collapsible % of flour adjuster -->
+    <div class="adjust-row">
+      <button class="adjust-toggle" id="pfPctToggle" aria-expanded="false" aria-controls="pfPctBody">
+        <span class="adjust-label" data-i18n="pct.flour">% of flour</span>
+        <span class="adjust-value"><span id="prefermentVal">30</span>%</span>
+        <svg class="adjust-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="adjust-body" id="pfPctBody">
+        <div class="adjust-body-inner">
+          <input type="range" min="10" max="100" step="5" value="30" id="prefermentPct" class="slider" aria-label="Pre-ferment percentage" />
+          <div class="ticks" id="prefermentTicks">
+            <span data-v="10">10%</span>
+            <span data-v="30">30%</span>
+            <span data-v="50">50%</span>
+            <span data-v="70">70%</span>
+            <span data-v="100">100%</span>
+          </div>
+          <p class="note" id="prefermentNote"></p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ============ FINAL DOUGH BREAKDOWN ============ -->
-  <div class="section-title hidden" id="finalTitle"><span class="dot"></span> Final dough mix</div>
+  <div class="section-title hidden" id="finalTitle"><span class="dot"></span> <span data-i18n="sec.final">Day 2–4 — Final dough mix</span></div>
   <section class="card hidden" id="finalCard">
-    <p class="note" style="margin: 0 0 8px 0;">Combine with the matured pre-ferment.</p>
+    <p class="note" data-i18n="note.combine" style="margin: 0 0 8px 0;">Combine with the matured pre-ferment.</p>
     <div class="ingredients">
       <div class="ingredient">
         <div class="ing-icon" style="background:#F4E9D5;">
           <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
         </div>
-        <div><span class="ing-name">Flour</span></div>
+        <div><span class="ing-name" data-i18n="ing.flour">Flour</span></div>
         <div class="ing-amt"><span id="fdFlour">1050</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
         <div class="ing-icon" style="background:#D9ECF5;">
           <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
         </div>
-        <div><span class="ing-name">Water</span></div>
+        <div><span class="ing-name" data-i18n="ing.water">Water</span></div>
         <div class="ing-amt"><span id="fdWater">772</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
         <div class="ing-icon" style="background:#EDEDED;">
           <svg viewBox="0 0 32 32"><rect x="10" y="10" width="12" height="15" rx="2" fill="#FAFAFA" stroke="#B5B8B8"/><path d="M11 8 h10 v2 h-10z" fill="#9DA0A0"/></svg>
         </div>
-        <div><span class="ing-name">Salt</span></div>
+        <div><span class="ing-name" data-i18n="ing.salt">Salt</span></div>
         <div class="ing-amt"><span id="fdSalt">42</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
         <div class="ing-icon" style="background:#F1E2C5;">
           <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
         </div>
-        <div><span class="ing-name">Yeast</span></div>
+        <div><span class="ing-name" data-i18n="ing.yeast">Yeast</span></div>
         <div class="ing-amt"><span id="fdYeast">4</span><span class="u">g</span></div>
       </div>
     </div>
   </section>
 
   <!-- ============ RECIPES ============ -->
-  <div class="section-title"><span class="dot"></span> My Recipes</div>
+  <div class="section-title"><span class="dot"></span> <span data-i18n="sec.presets">My Presets</span></div>
   <section class="card">
     <div id="recipeList" class="recipe-list"></div>
-    <div id="emptyRecipes" class="empty-recipes">No saved recipes yet. Tap below to save the current settings.</div>
+    <div id="emptyRecipes" class="empty-recipes" data-i18n="preset.empty">No saved presets yet. Tap below to save the current settings.</div>
     <button class="save-btn" id="saveRecipeBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
         <polyline points="17 21 17 13 7 13 7 21"/>
         <polyline points="7 3 7 8 15 8"/>
       </svg>
-      Save current as recipe
+      <span data-i18n="preset.save">Save current as preset</span>
     </button>
   </section>
 
@@ -896,39 +936,41 @@
 <div class="modal-back" id="modalBack"></div>
 <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <div class="modal-grip"></div>
-  <h2 id="settingsTitle">Recipe settings</h2>
-  <p>Tweak the defaults that fit your style and oven.</p>
+  <h2 id="settingsTitle" data-i18n="settings.title">Recipe settings</h2>
+  <p data-i18n="settings.lead">Tweak the defaults that fit your style and oven.</p>
 
   <div class="field">
-    <div class="field-label">Hydration <span class="v"><span id="hydrationVal">65</span>%</span></div>
-    <input type="range" min="55" max="85" step="1" value="65" id="hydration" class="slider" />
-    <p class="note">60–65% standard Neapolitan, 70%+ for wetter, more open crumb.</p>
+    <div class="field-label"><span data-i18n="settings.language">Language</span></div>
+    <select id="language" class="input-line">
+      <option value="en" data-i18n="lang.english">English</option>
+      <option value="da" data-i18n="lang.danish">Danish</option>
+    </select>
   </div>
 
   <div class="field">
-    <div class="field-label">Salt <span class="v"><span id="saltPctVal">2.8</span>%</span></div>
+    <div class="field-label"><span data-i18n="settings.hydration">Hydration</span> <span class="v"><span id="hydrationVal">65</span>%</span></div>
+    <input type="range" min="55" max="85" step="1" value="65" id="hydration" class="slider" />
+    <p class="note" data-i18n="note.hydration">60–65% standard Neapolitan, 70%+ for wetter, more open crumb.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-label"><span data-i18n="settings.salt">Salt</span> <span class="v"><span id="saltPctVal">2.8</span>%</span></div>
     <input type="range" min="1.5" max="4" step="0.1" value="2.8" id="saltPct" class="slider" />
   </div>
 
   <div class="field">
-    <div class="field-label">Yeast (instant dry) <span class="v"><span id="yeastPctVal">0.3</span>%</span></div>
+    <div class="field-label"><span data-i18n="settings.yeast">Yeast (instant dry)</span> <span class="v"><span id="yeastPctVal">0.3</span>%</span></div>
     <input type="range" min="0.05" max="1.5" step="0.05" value="0.3" id="yeastPct" class="slider" />
-    <p class="note">~0.1% for long cold ferments, ~0.3% same-day, ~1% for fast 2–4 h proofs.</p>
+    <p class="note" data-i18n="note.yeast">~0.1% for long cold ferments, ~0.3% same-day, ~1% for fast 2–4 h proofs.</p>
   </div>
 
   <div class="field">
-    <div class="field-label">Yeast type</div>
+    <div class="field-label" data-i18n="settings.yeastType">Yeast type</div>
     <select id="yeastType" class="input-line">
-      <option value="idy">Instant Dry Yeast (IDY)</option>
-      <option value="ady">Active Dry Yeast (ADY) — ×1.25</option>
-      <option value="fresh">Fresh / Cake Yeast — ×3</option>
+      <option value="idy" data-i18n="settings.yeastIdy">Instant Dry Yeast (IDY)</option>
+      <option value="ady" data-i18n="settings.yeastAdy">Active Dry Yeast (ADY) — ×1.25</option>
+      <option value="fresh" data-i18n="settings.yeastFresh">Fresh / Cake Yeast — ×3</option>
     </select>
-  </div>
-
-  <div class="field" id="bigaHydField">
-    <div class="field-label">Biga hydration <span class="v"><span id="bigaHydVal">45</span>%</span></div>
-    <input type="range" min="40" max="60" step="1" value="45" id="bigaHyd" class="slider" />
-    <p class="note">Classic biga: 44–48%. Higher = looser, easier to mix.</p>
   </div>
 
   <button class="modal-close ghost" id="resetSettings">
@@ -936,21 +978,21 @@
       <polyline points="1 4 1 10 7 10"/>
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
     </svg>
-    Reset to defaults
+    <span data-i18n="settings.reset">Reset to defaults</span>
   </button>
-  <button class="modal-close" id="closeSettings">Done</button>
+  <button class="modal-close" id="closeSettings" data-i18n="settings.done">Done</button>
 </div>
 
 <!-- ============ SAVE RECIPE MODAL ============ -->
 <div class="modal-back" id="saveModalBack"></div>
 <div class="modal" id="saveModal" role="dialog" aria-modal="true">
   <div class="modal-grip"></div>
-  <h2>Save recipe</h2>
-  <p>Give this dough a name. Stored locally in your browser.</p>
-  <input type="text" id="recipeName" class="input-line" placeholder="e.g. My Neapolitan 65%" maxlength="40" />
+  <h2 data-i18n="save.title">Save preset</h2>
+  <p data-i18n="save.lead">Give this dough a name. Stored locally in your browser.</p>
+  <input type="text" id="recipeName" class="input-line" data-i18n-placeholder="save.placeholder" placeholder="e.g. My Neapolitan 65%" maxlength="40" />
   <div style="display:flex; gap:10px; margin-top:14px;">
-    <button class="modal-close" id="cancelSave" style="background:#fff; color:var(--ink); border:2px solid var(--line);">Cancel</button>
-    <button class="modal-close" id="confirmSave">Save</button>
+    <button class="modal-close" id="cancelSave" data-i18n="save.cancel" style="background:#fff; color:var(--ink); border:2px solid var(--line);">Cancel</button>
+    <button class="modal-close" id="confirmSave" data-i18n="save.save">Save</button>
   </div>
 </div>
 
@@ -964,7 +1006,7 @@
 
 // --------- Defaults & state ---------
 const DEFAULTS = {
-  method: 'direct',
+  method: 'poolish',
   ballWeight: 250,
   hydration: 65,
   pizzas: 6,
@@ -972,15 +1014,161 @@ const DEFAULTS = {
   saltPct: 2.8,
   yeastPct: 0.3,
   yeastType: 'idy',
-  bigaHyd: 45,
+  language: 'en',
 };
 const state = { ...DEFAULTS };
+// Biga hydration is fixed (classic ~45%) — no UI, no state.
+const BIGA_HYDRATION = 45;
+
+// --------- i18n ---------
+const i18n = {
+  en: {
+    'header.tool': 'TOOL',
+    'tab.poolish': 'Poolish',           'tab.poolishSub': 'LIQUID · 100%',
+    'tab.biga':    'Biga',              'tab.bigaSub':    'STIFF · 45%',
+    'tab.direct':  'Direct',            'tab.directSub':  'SAME-DAY',
+    'intro.title': 'DOUGH CALCULATOR',
+    'intro.text':  'Calculate ingredients and pizzas from your dough.',
+    'intro.direct':  'Same-day direct dough — fast and forgiving.',
+    'intro.biga':    'Biga: a stiff Italian pre-ferment — chewy, complex crust.',
+    'intro.poolish': 'Poolish: a wet French pre-ferment — open, airy crumb.',
+    'card.pizzas': 'Number of Pizzas',
+    'card.weight': 'Dough Ball Weight',
+    'card.totals': 'Total Ingredients',
+    'ing.flour': 'Flour', 'ing.water': 'Water', 'ing.salt': 'Salt', 'ing.yeast': 'Yeast',
+    'sec.preferment': 'Day 1 — Pre-ferment',
+    'sec.final':      'Day 2–4 — Final dough mix',
+    'sec.presets':    'My Presets',
+    'note.bigaTime':    'Ferment 16–24 h at 16–18 °C (or 12–14 h at room temp).',
+    'note.poolishTime': 'Ferment 12–16 h at room temp until bubbly and slightly domed.',
+    'note.combine':     'Combine with the matured pre-ferment.',
+    'note.bigaRange':    'Classic biga uses 50–100% of total flour. Higher = more flavour, longer rise.',
+    'note.poolishRange': 'Classic poolish uses 20–40% of total flour. Higher = more open crumb.',
+    'note.hydration':    '60–65% standard Neapolitan, 70%+ for wetter, more open crumb.',
+    'note.yeast':        '~0.1% for long cold ferments, ~0.3% same-day, ~1% for fast 2–4 h proofs.',
+    'pct.flour':     '% OF FLOUR',
+    'pct.ofTotal':   '{0}% of total',
+    'pct.hydration': '{0}% (hydration)',
+    'preset.save':       'Save current as preset',
+    'preset.empty':      'No saved presets yet. Tap below to save the current settings.',
+    'preset.load':       'Load',
+    'preset.confirmDel': 'Sure?',
+    'settings.title':      'Recipe settings',
+    'settings.lead':       'Tweak the defaults that fit your style and oven.',
+    'settings.language':   'Language',
+    'settings.hydration':  'Hydration',
+    'settings.salt':       'Salt',
+    'settings.yeast':      'Yeast (instant dry)',
+    'settings.yeastType':  'Yeast type',
+    'settings.yeastIdy':   'Instant Dry Yeast (IDY)',
+    'settings.yeastAdy':   'Active Dry Yeast (ADY) — ×1.25',
+    'settings.yeastFresh': 'Fresh / Cake Yeast — ×3',
+    'settings.reset':      'Reset to defaults',
+    'settings.done':       'Done',
+    'save.title':       'Save preset',
+    'save.lead':        'Give this dough a name. Stored locally in your browser.',
+    'save.placeholder': 'e.g. My Neapolitan 65%',
+    'save.cancel':      'Cancel',
+    'save.save':        'Save',
+    'toast.saved':     'Preset saved',
+    'toast.deleted':   'Deleted',
+    'toast.loaded':    'Loaded "{0}"',
+    'toast.reset':     'Reset to defaults',
+    'toast.nameReq':   'Name required',
+    'lang.english': 'English',
+    'lang.danish':  'Danish',
+    'yeast.idy': 'IDY', 'yeast.ady': 'ADY', 'yeast.fresh': 'fresh',
+    'aria.minus': 'One fewer pizza', 'aria.plus': 'One more pizza',
+    'aria.delete': 'Delete',
+  },
+  da: {
+    'header.tool': 'VÆRKTØJ',
+    'tab.poolish': 'Poolish',           'tab.poolishSub': 'FLYDENDE · 100%',
+    'tab.biga':    'Biga',              'tab.bigaSub':    'STIV · 45%',
+    'tab.direct':  'Direkte',           'tab.directSub':  'SAMME DAG',
+    'intro.title': 'DEJBEREGNER',
+    'intro.text':  'Beregn ingredienser og pizzaer ud fra din dej.',
+    'intro.direct':  'Samme-dags direkte dej — hurtig og tilgivende.',
+    'intro.biga':    'Biga: en stiv italiensk forforgæring — sej, kompleks skorpe.',
+    'intro.poolish': 'Poolish: en våd fransk forforgæring — åben, luftig krumme.',
+    'card.pizzas': 'Antal pizzaer',
+    'card.weight': 'Vægt pr. dejkugle',
+    'card.totals': 'Samlede ingredienser',
+    'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
+    'sec.preferment': 'Dag 1 — Forforgæring',
+    'sec.final':      'Dag 2–4 — Endelig dej',
+    'sec.presets':    'Mine forindstillinger',
+    'note.bigaTime':    'Forgær 16–24 t ved 16–18 °C (eller 12–14 t ved stuetemp.).',
+    'note.poolishTime': 'Forgær 12–16 t ved stuetemp. indtil boblende og let hvælvet.',
+    'note.combine':     'Bland med den modne forforgæring.',
+    'note.bigaRange':    'Klassisk biga bruger 50–100% af det samlede mel. Højere = mere smag, længere hævning.',
+    'note.poolishRange': 'Klassisk poolish bruger 20–40% af det samlede mel. Højere = mere åben krumme.',
+    'note.hydration':    '60–65% standard napolitansk, 70%+ for vådere, mere åben krumme.',
+    'note.yeast':        '~0,1% til lange kolde forgæringer, ~0,3% samme dag, ~1% til hurtige 2–4 t hævninger.',
+    'pct.flour':     '% AF MEL',
+    'pct.ofTotal':   '{0}% af total',
+    'pct.hydration': '{0}% (hydrering)',
+    'preset.save':       'Gem som forindstilling',
+    'preset.empty':      'Ingen gemte forindstillinger endnu. Tryk nedenfor for at gemme.',
+    'preset.load':       'Indlæs',
+    'preset.confirmDel': 'Sikker?',
+    'settings.title':      'Indstillinger',
+    'settings.lead':       'Juster standarderne, der passer til din stil og ovn.',
+    'settings.language':   'Sprog',
+    'settings.hydration':  'Hydrering',
+    'settings.salt':       'Salt',
+    'settings.yeast':      'Gær (instant tør)',
+    'settings.yeastType':  'Gærtype',
+    'settings.yeastIdy':   'Instant tørgær (IDY)',
+    'settings.yeastAdy':   'Aktiv tørgær (ADY) — ×1,25',
+    'settings.yeastFresh': 'Frisk gær — ×3',
+    'settings.reset':      'Nulstil til standard',
+    'settings.done':       'Færdig',
+    'save.title':       'Gem forindstilling',
+    'save.lead':        'Giv denne dej et navn. Gemmes lokalt i din browser.',
+    'save.placeholder': 'f.eks. Min napolitansk 65%',
+    'save.cancel':      'Annuller',
+    'save.save':        'Gem',
+    'toast.saved':     'Forindstilling gemt',
+    'toast.deleted':   'Slettet',
+    'toast.loaded':    'Indlæst "{0}"',
+    'toast.reset':     'Nulstillet',
+    'toast.nameReq':   'Navn påkrævet',
+    'lang.english': 'Engelsk',
+    'lang.danish':  'Dansk',
+    'yeast.idy': 'IDY', 'yeast.ady': 'ADY', 'yeast.fresh': 'frisk',
+    'aria.minus': 'En pizza mindre', 'aria.plus': 'En pizza mere',
+    'aria.delete': 'Slet',
+  },
+};
+function t(key, ...args) {
+  const dict = i18n[state.language] || i18n.en;
+  let s = (dict[key] !== undefined ? dict[key] : (i18n.en[key] !== undefined ? i18n.en[key] : key));
+  args.forEach((a, i) => { s = s.split('{' + i + '}').join(a); });
+  return s;
+}
+function applyLanguage() {
+  // text content
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  // placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  // aria-labels
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAria));
+  });
+  // document title
+  document.title = t('intro.title') + ' — Pizza Tool';
+}
 
 // --------- Constants ---------
 const POOLISH_HYD = 100;     // poolish is always 100%
 const YEAST_MULT = { idy: 1, ady: 1.25, fresh: 3 };
 const PF_PCT_LIMITS = {
-  biga:    { min: 30, max: 100, default: 50, ticks: [30, 50, 70, 100] },
+  biga:    { min: 30, max: 100, default: 60, ticks: [30, 60, 80, 100] },
   poolish: { min: 10, max: 50,  default: 30, ticks: [10, 20, 30, 40, 50] },
 };
 
@@ -1020,7 +1208,7 @@ function calculate() {
 
   let pf = null, fd = null;
   if (state.method === 'biga' || state.method === 'poolish') {
-    const pfHyd = state.method === 'biga' ? state.bigaHyd : POOLISH_HYD;
+    const pfHyd = state.method === 'biga' ? BIGA_HYDRATION : POOLISH_HYD;
     const pfFlour = totalFlour * state.prefermentPct / 100;
     const pfWater = pfFlour * pfHyd / 100;
     // pre-ferment yeast: a small fraction of total yeast
@@ -1052,7 +1240,6 @@ function render() {
   $('prefermentVal').textContent = state.prefermentPct;
   $('saltPctVal').textContent    = state.saltPct.toFixed(1);
   $('yeastPctVal').textContent   = state.yeastPct.toFixed(2);
-  $('bigaHydVal').textContent    = state.bigaHyd;
 
   // Slider gradient fill (visual)
   setSliderFill('ballWeight');
@@ -1060,7 +1247,6 @@ function render() {
   setSliderFill('prefermentPct');
   setSliderFill('saltPct');
   setSliderFill('yeastPct');
-  setSliderFill('bigaHyd');
 
   // Total ingredients (with flash on change)
   setAmt('totFlour', fmt(r.totalFlour));
@@ -1070,65 +1256,67 @@ function render() {
   setAmt('totYeast', fmt(r.totalYeast));
   $('totWaterPct').textContent = state.hydration + '%';
   $('totSaltPct').textContent  = state.saltPct.toFixed(1) + '%';
-  const yeastTypeLbl = { idy: 'IDY', ady: 'ADY', fresh: 'fresh' }[state.yeastType];
+  const yeastTypeLbl = t('yeast.' + state.yeastType);
   $('totYeastPct').textContent = `${(r.yPct).toFixed(2)}% (${yeastTypeLbl})`;
 
   // Pre-ferment cards
   const isPF = state.method !== 'direct';
-  ['pfBreakdownTitle','pfBreakdownCard','finalTitle','finalCard','prefermentCard'].forEach(id => {
+  ['pfBreakdownTitle','pfBreakdownCard','finalTitle','finalCard'].forEach(id => {
     $(id).classList.toggle('hidden', !isPF);
   });
 
   if (isPF) {
     const methodName = state.method === 'biga' ? 'Biga' : 'Poolish';
-    $('prefermentLabel').textContent = `${methodName} · % of flour`;
     $('pfBreakdownMethod').textContent = `(${methodName})`;
     setAmt('pfFlour', fmt(r.pf.flour));
     setAmt('pfWater', fmt(r.pf.water));
     setAmt('pfYeast', fmt(r.pf.yeast));
-    $('pfFlourPct').textContent = state.prefermentPct + '% of total';
-    $('pfWaterPct').textContent = r.pf.hyd + '% (hydration)';
+    $('pfFlourPct').textContent = t('pct.ofTotal', state.prefermentPct);
+    $('pfWaterPct').textContent = t('pct.hydration', r.pf.hyd);
     setAmt('fdFlour', fmt(r.fd.flour));
     setAmt('fdWater', fmt(r.fd.water));
     setAmt('fdSalt',  fmt(r.fd.salt));
     setAmt('fdYeast', fmt(r.fd.yeast));
 
     // Pre-ferment time guidance
-    const guide = state.method === 'biga'
-      ? 'Ferment 16–24 h at 16–18 °C (or 12–14 h at room temp).'
-      : 'Ferment 12–16 h at room temp until bubbly and slightly domed.';
-    $('pfTimeNote').textContent = guide;
+    $('pfTimeNote').textContent = t(state.method === 'biga' ? 'note.bigaTime' : 'note.poolishTime');
 
     // Tick presets for preferment %
     const lim = PF_PCT_LIMITS[state.method];
     $('prefermentPct').min = lim.min;
     $('prefermentPct').max = lim.max;
+    // Re-sync the value AFTER min/max are updated — otherwise it gets clamped
+    // against the previous method's range when switching (e.g. poolish max=50 → biga 60)
+    $('prefermentPct').value = state.prefermentPct;
+    // Re-apply fill now that min/max and value match the current method
+    setSliderFill('prefermentPct');
     const ticksEl = $('prefermentTicks');
     ticksEl.innerHTML = lim.ticks.map(v => `<span data-v="${v}">${v}%</span>`).join('');
+    // position labels at their actual % within the slider range
+    positionTicks('prefermentTicks', lim.min, lim.max);
+    // re-bind click handlers (innerHTML replacement drops the old ones)
+    [...ticksEl.children].forEach(span => {
+      span.addEventListener('click', () => {
+        const slider = $('prefermentPct');
+        slider.value = span.dataset.v;
+        slider.dispatchEvent(new Event('input'));
+      });
+    });
     // mark closest tick active
     let closest = lim.ticks[0], diff = Infinity;
     lim.ticks.forEach(v => { if (Math.abs(v-state.prefermentPct) < diff) { diff = Math.abs(v-state.prefermentPct); closest = v; } });
     [...ticksEl.children].forEach(s => s.classList.toggle('active', +s.dataset.v === closest));
 
     // Note about default range
-    $('prefermentNote').textContent = state.method === 'biga'
-      ? 'Classic biga uses 50–100% of total flour. Higher = more flavour, longer rise.'
-      : 'Classic poolish uses 20–40% of total flour. Higher = more open crumb.';
+    $('prefermentNote').textContent = t(state.method === 'biga' ? 'note.bigaRange' : 'note.poolishRange');
   }
 
-  // Ball weight tick highlighting
+  // Ball weight tick layout + active highlight
+  positionTicks('ballTicks', 150, 350);
   highlightTicks('ballTicks', state.ballWeight);
 
   // Intro line
-  const introMap = {
-    direct: 'Same-day direct dough — fast and forgiving.',
-    biga:   'Biga: a stiff Italian pre-ferment — chewy, complex crust.',
-    poolish: 'Poolish: a wet French pre-ferment — open, airy crumb.',
-  };
-  $('introSub').textContent = introMap[state.method];
-
-  // Show/hide biga-specific setting
-  $('bigaHydField').style.display = state.method === 'biga' ? 'block' : 'none';
+  $('introSub').textContent = t('intro.' + state.method);
 
   // Tabs visual
   document.querySelectorAll('.tab').forEach(t => {
@@ -1153,11 +1341,41 @@ function highlightTicks(containerId, value) {
   if (closest) closest.classList.add('active');
 }
 
+// Position tick labels at their actual % along the slider range
+// (so labels line up with the thumb even when values aren't evenly spaced).
+function positionTicks(containerId, min, max) {
+  const c = $(containerId);
+  if (!c || max <= min) return;
+  const spans = [...c.children];
+  spans.forEach((span, i) => {
+    const v = +span.dataset.v;
+    if (isNaN(v)) return;
+    const pct = ((v - min) / (max - min)) * 100;
+    if (i === 0) {
+      // first label: anchor to the left edge so it doesn't clip
+      span.style.left = '0';
+      span.style.right = 'auto';
+      span.style.transform = 'none';
+    } else if (i === spans.length - 1) {
+      // last label: anchor to the right edge
+      span.style.left = 'auto';
+      span.style.right = '0';
+      span.style.transform = 'none';
+    } else {
+      span.style.left = pct + '%';
+      span.style.right = 'auto';
+      span.style.transform = 'translateX(-50%)';
+    }
+  });
+}
+
 function setSliderFill(id) {
   const el = $(id);
   if (!el) return;
   const min = +el.min, max = +el.max, val = +el.value;
-  const pct = ((val - min) / (max - min)) * 100;
+  if (!isFinite(min) || !isFinite(max) || max <= min) return;
+  let pct = ((val - min) / (max - min)) * 100;
+  pct = Math.max(0, Math.min(100, pct));
   el.style.backgroundSize = `${pct}% 100%`;
 }
 
@@ -1166,12 +1384,12 @@ function bindInputs() {
   // Method tabs
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      state.method = tab.dataset.method;
-      // Reset preferment % when switching to keep it within range
+      const newMethod = tab.dataset.method;
+      if (newMethod === state.method) return;
+      state.method = newMethod;
+      // Switching method always resets pre-ferment % to that method's default
       if (state.method !== 'direct') {
-        const lim = PF_PCT_LIMITS[state.method];
-        if (state.prefermentPct < lim.min) state.prefermentPct = lim.default;
-        if (state.prefermentPct > lim.max) state.prefermentPct = lim.default;
+        state.prefermentPct = PF_PCT_LIMITS[state.method].default;
         $('prefermentPct').value = state.prefermentPct;
       }
       render();
@@ -1184,12 +1402,27 @@ function bindInputs() {
   $('prefermentPct').addEventListener('input', e => { state.prefermentPct = +e.target.value; render(); });
   $('saltPct').addEventListener('input',    e => { state.saltPct = +e.target.value; render(); });
   $('yeastPct').addEventListener('input',   e => { state.yeastPct = +e.target.value; render(); });
-  $('bigaHyd').addEventListener('input',    e => { state.bigaHyd = +e.target.value; render(); });
   $('yeastType').addEventListener('change', e => { state.yeastType = e.target.value; render(); });
+  $('language').addEventListener('change', e => {
+    state.language = e.target.value;
+    applyLanguage();
+    renderRecipes();   // re-render preset rows so "Load" / aria-delete change
+    render();          // re-render dynamic strings (intro, notes, yeast label)
+    localStorage.setItem('pizzaTool:lastState', JSON.stringify(state));
+  });
 
   // Stepper
   $('pizzaPlus').addEventListener('click', () => { if (state.pizzas < 30) { state.pizzas++; render(); }});
   $('pizzaMinus').addEventListener('click', () => { if (state.pizzas > 1)  { state.pizzas--; render(); }});
+
+  // Collapsible % of flour adjuster (inside Day 1 card)
+  $('pfPctToggle').addEventListener('click', () => {
+    const btn = $('pfPctToggle');
+    const body = $('pfPctBody');
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    body.classList.toggle('open', !expanded);
+  });
 
   // Tap a tick to jump to it
   document.querySelectorAll('.ticks span[data-v]').forEach(span => {
@@ -1210,18 +1443,20 @@ function bindInputs() {
   $('modalBack').addEventListener('click', () => closeModal('settingsModal'));
 
   // Reset to defaults — restores every field in the settings modal (and method/pizzas/ball/preferment too)
+  // Language is a UI preference, so it's preserved across resets.
   $('resetSettings').addEventListener('click', () => {
+    const currentLang = state.language;
     Object.assign(state, DEFAULTS);
+    state.language = currentLang;
     // sync DOM controls
     $('hydration').value     = state.hydration;
     $('saltPct').value       = state.saltPct;
     $('yeastPct').value      = state.yeastPct;
     $('yeastType').value     = state.yeastType;
-    $('bigaHyd').value       = state.bigaHyd;
     $('ballWeight').value    = state.ballWeight;
     $('prefermentPct').value = state.prefermentPct;
     render();
-    showToast('Reset to defaults');
+    showToast(t('toast.reset'));
   });
 
   // Save modal
@@ -1273,7 +1508,7 @@ function setRecipes(list) {
 
 function saveRecipe() {
   const name = $('recipeName').value.trim();
-  if (!name) { showToast('Name required'); return; }
+  if (!name) { showToast(t('toast.nameReq')); return; }
   const list = getRecipes();
   const recipe = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
@@ -1285,24 +1520,25 @@ function saveRecipe() {
   setRecipes(list);
   closeModal('saveModal');
   renderRecipes();
-  showToast('Recipe saved');
+  showToast(t('toast.saved'));
 }
 
 function loadRecipe(id) {
   const list = getRecipes();
   const r = list.find(x => x.id === id);
   if (!r) return;
+  const currentLang = state.language;
   Object.assign(state, r.state);
+  state.language = currentLang; // language is a UI preference, not a preset value
   // sync slider DOM
   $('ballWeight').value = state.ballWeight;
   $('hydration').value  = state.hydration;
   $('prefermentPct').value = state.prefermentPct;
   $('saltPct').value    = state.saltPct;
   $('yeastPct').value   = state.yeastPct;
-  $('bigaHyd').value    = state.bigaHyd;
   $('yeastType').value  = state.yeastType;
   render();
-  showToast(`Loaded "${r.name}"`);
+  showToast(t('toast.loaded', r.name));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1311,7 +1547,7 @@ function deleteRecipe(id) {
   list = list.filter(x => x.id !== id);
   setRecipes(list);
   renderRecipes();
-  showToast('Deleted');
+  showToast(t('toast.deleted'));
 }
 
 function renderRecipes() {
@@ -1332,8 +1568,8 @@ function renderRecipes() {
         <div class="r-meta">${m} · ${r.state.pizzas}× ${r.state.ballWeight}g · ${r.state.hydration}% hydration</div>
       </div>
       <div class="r-actions">
-        <button class="pill-btn load">Load</button>
-        <button class="pill-btn ghost del" aria-label="Delete">✕</button>
+        <button class="pill-btn load">${t('preset.load')}</button>
+        <button class="pill-btn ghost del" aria-label="${t('aria.delete')}">✕</button>
       </div>
     `;
     row.querySelector('.r-name').textContent = r.name;
@@ -1344,7 +1580,7 @@ function renderRecipes() {
       e.stopPropagation();
       if (!armed) {
         armed = true;
-        delBtn.textContent = 'Sure?';
+        delBtn.textContent = t('preset.confirmDel');
         delBtn.classList.remove('ghost');
         delBtn.style.background = 'var(--coral)';
         delBtn.style.color = '#fff';
@@ -1370,13 +1606,15 @@ function restoreLastState() {
     const s = JSON.parse(localStorage.getItem('pizzaTool:lastState'));
     if (s && typeof s === 'object') {
       Object.assign(state, s);
+      delete state.bigaHyd; // legacy field — biga hydration is now fixed
+      if (!state.language || !i18n[state.language]) state.language = 'en';
       $('ballWeight').value = state.ballWeight;
       $('hydration').value  = state.hydration;
       $('prefermentPct').value = state.prefermentPct;
       $('saltPct').value    = state.saltPct;
       $('yeastPct').value   = state.yeastPct;
-      $('bigaHyd').value    = state.bigaHyd;
       $('yeastType').value  = state.yeastType;
+      $('language').value   = state.language;
     }
   } catch {}
 }
@@ -1384,6 +1622,7 @@ function restoreLastState() {
 // --------- Init ---------
 document.addEventListener('DOMContentLoaded', () => {
   restoreLastState();
+  applyLanguage();
   bindInputs();
   renderRecipes();
   render();
