@@ -2,12 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#1B3A2E" />
 <title>Pizza Tool — Dough Calculator</title>
+<!-- Favicon (browser tabs) -->
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="apple-touch-icon" href="favicon.svg" />
-<link rel="alternate icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231B3A2E'/><g transform='translate(0,3)'><path d='M10 18 Q32 6 54 18 L50 23 Q32 12 14 23 Z' fill='%23A07A4F'/><path d='M11 19 Q32 8 53 19 L49 23 Q32 14 15 23 Z' fill='%23D9B681'/><path d='M14 23 Q32 13 50 23 L32 55 Z' fill='%23E15A3F'/><path d='M16 25 Q32 15 48 25 L32 52 Z' fill='%23FFE39A' opacity='0.6'/><circle cx='23' cy='29' r='3.2' fill='%23C13A2C'/><circle cx='41' cy='30' r='3.2' fill='%23C13A2C'/><circle cx='32' cy='42' r='2.8' fill='%23C13A2C'/></g></svg>" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+
+<!-- iOS home screen icon (180×180 PNG, iOS applies its own corner mask) -->
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+
+<!-- Android / PWA -->
+<link rel="manifest" href="manifest.webmanifest" />
+
+<!-- iOS standalone display + status-bar styling when added to home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Pizza Tool" />
+<meta name="application-name" content="Pizza Tool" />
 <style>
   /* ---------- Reset + base ---------- */
   *, *::before, *::after { box-sizing: border-box; }
@@ -20,9 +34,29 @@
     min-height: 100vh;
     min-height: 100dvh;
     overflow-x: hidden;
+    /* prevent text selection / iOS callout on rapid tapping */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
   }
-  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-  input, select { font-family: inherit; }
+  button, .tab, .ticks span, .step-btn {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+    /* kills double-tap-to-zoom delay on iOS — fixes zoom-on-rapid-tap of +/- */
+    touch-action: manipulation;
+  }
+  input, select {
+    font-family: inherit;
+    /* allow normal interaction with sliders/text inputs */
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+  /* recipe name input must allow text selection */
+  #recipeName { -webkit-user-select: text; user-select: text; }
 
   /* ---------- Theme tokens ---------- */
   :root {
