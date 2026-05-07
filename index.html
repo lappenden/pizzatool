@@ -325,6 +325,14 @@
   /* Lift the first card up over the curved hero edge */
   .card.first { margin-top: -18px; box-shadow: var(--shadow-lift); }
 
+  /* Divider between sub-sections inside a single card */
+  .card-divider {
+    height: 1px;
+    background: var(--slider-track);
+    border: none;
+    margin: 18px 0 16px 0;
+  }
+
   .card-header {
     display: flex;
     justify-content: space-between;
@@ -442,25 +450,36 @@
   .stepper {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: center;
+    gap: 28px;
     margin-top: 4px;
   }
   .step-btn {
-    width: 44px; height: 44px;
+    width: 53px; height: 53px;
     background: var(--green);
     border-radius: 50%;
-    display: grid; place-items: center;
-    font-size: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 31px;
     font-weight: 700;
+    line-height: 1;
     color: #fff;
     transition: transform .08s ease, background .15s ease;
     box-shadow: 0 3px 8px rgba(46, 182, 126, 0.32);
     flex-shrink: 0;
   }
   .step-btn:active { transform: scale(0.94); background: var(--green-dark); }
+  /* Optical centering nudge: math symbols (+/−) sit below the visual middle
+     of the line box in most system fonts. Lift them a hair to look centered. */
+  .step-glyph {
+    display: block;
+    line-height: 1;
+    transform: translateY(-3px);
+  }
   .step-value {
-    flex: 1;
+    min-width: 90px;
     text-align: center;
     font-size: 56px;
     font-weight: 900;
@@ -1069,8 +1088,23 @@
     </div>
   </div>
 
-  <!-- ============ DOUGH BALL WEIGHT (now first - big hero number) ============ -->
+  <!-- ============ DOUGH SETTINGS (combined: count + weight) ============ -->
   <section class="card first">
+    <!-- Sub-section: Number of Pizzas -->
+    <div class="card-header">
+      <div class="card-label" data-i18n="card.pizzas">Number of Pizzas</div>
+    </div>
+    <div class="stepper">
+      <button class="step-btn" id="pizzaMinus" data-i18n-aria="aria.minus" aria-label="One fewer pizza"><span class="step-glyph">−</span></button>
+      <div class="step-value" id="pizzaCount">6</div>
+      <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza"><span class="step-glyph">+</span></button>
+    </div>
+    <div class="stepper-sub" id="pizzaCountSub">Total dough balls: 6</div>
+
+    <!-- Divider -->
+    <hr class="card-divider" aria-hidden="true" />
+
+    <!-- Sub-section: Dough Ball Weight -->
     <div class="card-header">
       <div class="card-label" data-i18n="card.weight">Dough Ball Weight</div>
     </div>
@@ -1104,28 +1138,6 @@
       <span data-v="300">300 g</span>
       <span data-v="350">350 g</span>
     </div>
-  </section>
-
-  <!-- ============ NUMBER OF PIZZAS (green circle stepper) ============ -->
-  <section class="card">
-    <div class="card-header">
-      <div class="card-icon tinted-green" aria-hidden="true">
-        <!-- pizza slice icon (green-tinted) -->
-        <svg viewBox="0 0 40 40">
-          <path d="M6 34 L20 6 L34 34 Z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="2" stroke-linejoin="round"/>
-          <circle cx="16" cy="26" r="2.1" fill="#2EB67E"/>
-          <circle cx="24" cy="24" r="1.8" fill="#2EB67E"/>
-          <circle cx="20" cy="30" r="1.6" fill="#2EB67E"/>
-        </svg>
-      </div>
-      <div class="card-label" data-i18n="card.pizzas">Number of Pizzas</div>
-    </div>
-    <div class="stepper">
-      <button class="step-btn" id="pizzaMinus" data-i18n-aria="aria.minus" aria-label="One fewer pizza">−</button>
-      <div class="step-value" id="pizzaCount">6</div>
-      <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza">+</button>
-    </div>
-    <div class="stepper-sub" id="pizzaCountSub">Total dough balls: 6</div>
   </section>
 
   <!-- ============ INGREDIENTS NEEDED (colorful tile grid) ============ -->
