@@ -181,11 +181,18 @@
 
   /* ---------- Header (orange hero) ---------- */
   .header {
-    position: relative;
-    z-index: 5;
-    background: linear-gradient(135deg, #FF9A52 0%, #F5811F 45%, #E76F0E 100%);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background:
+      /* tiny sparkle dots scattered across the gradient */
+      radial-gradient(circle at 18% 28%, rgba(255,255,255,0.18) 0 1.6px, transparent 2px),
+      radial-gradient(circle at 72% 62%, rgba(255,255,255,0.14) 0 1.2px, transparent 2px),
+      radial-gradient(circle at 38% 78%, rgba(255,255,255,0.16) 0 1.4px, transparent 2px),
+      radial-gradient(circle at 86% 22%, rgba(255,255,255,0.12) 0 1.2px, transparent 2px),
+      linear-gradient(135deg, #FF9A52 0%, #F5811F 45%, #E76F0E 100%);
     color: #fff;
-    padding: 22px 22px 28px 22px;
+    padding: 22px 22px 26px 22px;
     padding-top: max(22px, env(safe-area-inset-top));
     display: flex;
     align-items: flex-start;
@@ -194,22 +201,6 @@
     border-bottom-left-radius: 28px;
     border-bottom-right-radius: 28px;
     transition: box-shadow .2s ease;
-  }
-  .header::before {
-    /* sun-burst rays accent */
-    content: "";
-    position: absolute;
-    right: -18px; top: 60%;
-    width: 60px; height: 4px;
-    background: #FFD58A;
-    border-radius: 2px;
-    transform: rotate(20deg);
-    box-shadow:
-      -10px -14px 0 -1px #FFD58A,
-      -20px -22px 0 -1px #FFD58A,
-      -32px -16px 0 -1px #FFD58A;
-    opacity: 0.85;
-    pointer-events: none;
   }
   .header.scrolled {
     box-shadow: 0 8px 18px rgba(231, 111, 14, 0.22);
@@ -228,13 +219,14 @@
     letter-spacing: 1px;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    white-space: nowrap;
   }
   .brand-sub {
-    font-size: 22px;
-    font-weight: 900;
+    /* "TOOL" sits inline with PIZZA on a single line */
+    font-size: inherit;
+    font-weight: inherit;
     color: #FFD58A;
-    letter-spacing: 2px;
-    margin-top: 2px;
+    letter-spacing: inherit;
     text-shadow: 0 2px 4px rgba(0,0,0,0.10);
   }
   .brand-tag {
@@ -245,28 +237,21 @@
     letter-spacing: 0.2px;
     line-height: 1.35;
   }
-  .header-pizza {
-    position: absolute;
-    right: -28px; top: 38%;
-    width: 130px; height: 130px;
-    pointer-events: none;
-    transform: rotate(8deg);
-    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.18));
-  }
   .icon-btn {
     position: relative;
     z-index: 2;
     width: 40px; height: 40px;
-    background: rgba(255,255,255,0.20);
-    border: 1.5px solid rgba(255,255,255,0.55);
+    background: transparent;
+    border: none;
     border-radius: 50%;
     display: grid; place-items: center;
-    color: #fff;
-    transition: background .15s ease;
+    color: #FFD58A;
+    transition: transform .12s ease, opacity .15s ease;
     flex-shrink: 0;
   }
-  .icon-btn:hover { background: rgba(255,255,255,0.32); }
-  .icon-btn svg { width: 20px; height: 20px; }
+  .icon-btn:hover  { opacity: 0.85; }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn svg { width: 32px; height: 32px; }
 
   /* ---------- Method tabs ---------- */
   .tabs {
@@ -999,60 +984,48 @@
   <header class="header">
     <div class="brand">
       <div class="brand-emoji" aria-hidden="true">
-        <!-- pizza slice -->
+        <!-- pizza in a chef's circle — minimalist top-down logo mark -->
         <svg viewBox="0 0 64 64">
           <defs>
-            <linearGradient id="sliceCheese" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#FFE39A"/>
-              <stop offset="100%" stop-color="#F5C56A"/>
-            </linearGradient>
+            <radialGradient id="brandSauce" cx="40%" cy="35%" r="80%">
+              <stop offset="0%" stop-color="#F47A5C"/>
+              <stop offset="100%" stop-color="#D14328"/>
+            </radialGradient>
           </defs>
-          <!-- crust -->
-          <path d="M8 56 L32 8 L56 56 Z" fill="#E8B26A" stroke="#A86B2C" stroke-width="2.2" stroke-linejoin="round"/>
-          <!-- cheese surface -->
-          <path d="M14 53 L32 17 L50 53 Z" fill="url(#sliceCheese)"/>
-          <!-- pepperoni -->
-          <circle cx="26" cy="42" r="4" fill="#D4392B"/>
-          <circle cx="38" cy="38" rx="3.4" ry="3.4" fill="#D4392B"/>
-          <circle cx="32" cy="50" r="3.2" fill="#D4392B"/>
-          <!-- highlights -->
-          <ellipse cx="25" cy="40.5" rx="1.2" ry="0.7" fill="#F26E5C" opacity="0.85"/>
-          <ellipse cx="37" cy="36.5" rx="1.0" ry="0.6" fill="#F26E5C" opacity="0.85"/>
-          <!-- basil -->
-          <ellipse cx="32" cy="32" rx="1.5" ry="0.9" fill="#5C8B3F"/>
-          <ellipse cx="28" cy="48" rx="1.3" ry="0.8" fill="#5C8B3F"/>
+          <!-- white plate halo -->
+          <circle cx="32" cy="32" r="30" fill="#FFFFFF"/>
+          <!-- outer crust ring -->
+          <circle cx="32" cy="32" r="26" fill="#E8B26A"/>
+          <!-- inner crust shadow ring -->
+          <circle cx="32" cy="32" r="22" fill="none" stroke="#C68B43" stroke-width="1.6"/>
+          <!-- sauce field -->
+          <circle cx="32" cy="32" r="22" fill="url(#brandSauce)"/>
+          <!-- cheese melt blobs -->
+          <ellipse cx="22" cy="24" rx="4.5" ry="2.6" fill="#FFE39A" opacity="0.85"/>
+          <ellipse cx="42" cy="38" rx="4.5" ry="2.6" fill="#FFE39A" opacity="0.85"/>
+          <ellipse cx="36" cy="22" rx="2.4" ry="1.4" fill="#FFE39A" opacity="0.7"/>
+          <!-- pepperoni (3 nicely placed) -->
+          <circle cx="40" cy="24" r="3.6" fill="#B8261A"/>
+          <ellipse cx="39" cy="22.5" rx="1.4" ry="0.7" fill="#E45040" opacity="0.9"/>
+          <circle cx="22" cy="38" r="3.6" fill="#B8261A"/>
+          <ellipse cx="21" cy="36.5" rx="1.4" ry="0.7" fill="#E45040" opacity="0.9"/>
+          <circle cx="38" cy="42" r="3.2" fill="#B8261A"/>
+          <ellipse cx="37" cy="40.7" rx="1.2" ry="0.6" fill="#E45040" opacity="0.9"/>
+          <!-- single basil leaf -->
+          <ellipse cx="29" cy="34" rx="2.4" ry="1.2" fill="#5C8B3F" transform="rotate(-25 29 34)"/>
         </svg>
       </div>
       <div class="brand-text">
-        <div class="brand-title">PIZZA</div>
-        <div class="brand-sub" data-i18n="header.tool">TOOL</div>
+        <div class="brand-title">PIZZA<span class="brand-sub" data-i18n="header.tool">TOOL</span></div>
         <div class="brand-tag" data-i18n="header.tag">Calculate your dough ingredients &amp; pizzas</div>
       </div>
     </div>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
-      <!-- gear icon, kept since it opens the existing settings modal -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      <!-- solid cogwheel icon -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 0 2.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.07c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 0 0 2.28-.819l.923-1.597a1.875 1.875 0 0 0-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 0 0 0-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 0 0-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 0 0-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 0 0-1.85-1.567h-1.843ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"/>
       </svg>
     </button>
-    <!-- decorative pizza wheel peeking from the right -->
-    <svg class="header-pizza" viewBox="0 0 130 130" aria-hidden="true">
-      <circle cx="65" cy="65" r="60" fill="#E8B26A" stroke="#A86B2C" stroke-width="2.5"/>
-      <circle cx="65" cy="65" r="50" fill="#F5C56A"/>
-      <circle cx="65" cy="65" r="46" fill="#E15A3F" opacity="0.92"/>
-      <circle cx="65" cy="65" r="46" fill="#FFE39A" opacity="0.35"/>
-      <!-- pepperoni -->
-      <circle cx="48" cy="48" r="7" fill="#C13A2C"/>
-      <circle cx="80" cy="44" r="7" fill="#C13A2C"/>
-      <circle cx="44" cy="78" r="7" fill="#C13A2C"/>
-      <circle cx="84" cy="80" r="7" fill="#C13A2C"/>
-      <circle cx="64" cy="64" r="6" fill="#C13A2C"/>
-      <!-- basil leaves -->
-      <ellipse cx="62" cy="36" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(-12 62 36)"/>
-      <ellipse cx="56" cy="92" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(18 56 92)"/>
-      <ellipse cx="92" cy="62" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(72 92 62)"/>
-    </svg>
   </header>
 
   <!-- ============ METHOD TABS ============ -->
@@ -1142,17 +1115,6 @@
   <!-- ============ INGREDIENTS NEEDED (colorful tile grid) ============ -->
   <section class="card" id="totalsCard">
     <div class="card-header">
-      <div class="card-icon tinted-blue" aria-hidden="true">
-        <!-- kitchen scale icon -->
-        <svg viewBox="0 0 40 40">
-          <rect x="9" y="28" width="22" height="6" rx="2" fill="#2F8DBE"/>
-          <rect x="6" y="24" width="28" height="4" rx="2" fill="#3FB0E0"/>
-          <ellipse cx="20" cy="22" rx="9" ry="3" fill="#2F8DBE" opacity="0.35"/>
-          <ellipse cx="20" cy="16" rx="10" ry="9" fill="#FFF6E0"/>
-          <ellipse cx="16" cy="13" rx="2.5" ry="1.4" fill="#FFFEF6" opacity="0.7"/>
-          <circle cx="27" cy="32" r="1.1" fill="#1C5F80"/>
-        </svg>
-      </div>
       <div class="card-label" data-i18n="card.totals">Ingredients Needed</div>
       <div class="live-pill" id="livePill" aria-hidden="true">
         <span class="live-dot"></span>LIVE
@@ -1191,14 +1153,21 @@
       <div class="ing-tile salt">
         <div class="ing-icon-circle">
           <svg viewBox="0 0 32 32" aria-hidden="true">
-            <!-- mortar + salt -->
-            <path d="M5 18 Q16 14 27 18 L24 26 Q16 29 8 26 Z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.4"/>
-            <ellipse cx="16" cy="18" rx="10" ry="2.6" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.2"/>
-            <circle cx="13" cy="17" r="0.8" fill="#2EB67E"/>
-            <circle cx="19" cy="17.4" r="0.7" fill="#2EB67E"/>
-            <circle cx="16" cy="18.6" r="0.6" fill="#2EB67E"/>
-            <!-- pestle -->
-            <path d="M22 6 l4 4 -3 3 -4-4z" fill="#2EB67E"/>
+            <!-- salt shaker -->
+            <!-- grains escaping above -->
+            <circle cx="13" cy="3.5" r="0.7" fill="#2EB67E"/>
+            <circle cx="16" cy="2" r="0.8" fill="#2EB67E"/>
+            <circle cx="19" cy="3.5" r="0.7" fill="#2EB67E"/>
+            <!-- cap -->
+            <path d="M10 6 a2 2 0 0 1 2 -2 h8 a2 2 0 0 1 2 2 v6 h-12 z" fill="#2EB67E"/>
+            <!-- holes in cap -->
+            <circle cx="13.2" cy="7.2" r="0.7" fill="#FFFFFF"/>
+            <circle cx="16" cy="6.5" r="0.8" fill="#FFFFFF"/>
+            <circle cx="18.8" cy="7.2" r="0.7" fill="#FFFFFF"/>
+            <!-- body -->
+            <path d="M10 12 v13 a2 2 0 0 0 2 2 h8 a2 2 0 0 0 2 -2 v-13 z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.4" stroke-linejoin="round"/>
+            <!-- subtle wave line on body -->
+            <path d="M13 19 q1.5 -1.4 3 0 q1.5 1.4 3 0" stroke="#2EB67E" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.55"/>
           </svg>
         </div>
         <div class="ing-tile-name" data-i18n="ing.salt">Salt</div>
@@ -1245,27 +1214,42 @@
   </section>
 
   <!-- ============ PRE-FERMENT BREAKDOWN ============ -->
-  <div class="section-title hidden" id="pfBreakdownTitle"><span class="dot"></span> <span data-i18n="sec.preferment">Day 1 — Pre-ferment</span> <span id="pfBreakdownMethod">(Biga)</span></div>
   <section class="card hidden" id="pfBreakdownCard">
+    <div class="card-header">
+      <div class="card-label"><span data-i18n="sec.preferment">Day 1 — Pre-ferment</span> <span id="pfBreakdownMethod">(Biga)</span></div>
+    </div>
     <p class="note" id="pfTimeNote" style="margin: 0 0 8px 0;"></p>
     <div class="ingredients">
       <div class="ingredient">
-        <div class="ing-icon" style="background:#F4E9D5;">
-          <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
+        <div class="ing-icon" style="background: var(--tile-flour);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
+            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
+            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
+            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.flour">Flour</span><span class="ing-pct" id="pfFlourPct">30% of total</span></div>
         <div class="ing-amt"><span id="pfFlour">450</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
-        <div class="ing-icon" style="background:#D9ECF5;">
-          <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
+        <div class="ing-icon" style="background: var(--tile-water);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#2F8DBE"/>
+            <path d="M12 19 C12 22 14 24 17 24" fill="none" stroke="#fff" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.water">Water</span><span class="ing-pct" id="pfWaterPct">45%</span></div>
         <div class="ing-amt"><span id="pfWater">203</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
-        <div class="ing-icon" style="background:#F1E2C5;">
-          <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
+        <div class="ing-icon" style="background: var(--tile-yeast);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M7 10 l9-4 9 4 v12 l-9 4 -9-4z" fill="#D4A86A"/>
+            <path d="M7 10 l9 4 9-4" fill="none" stroke="#8B5A2B" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M16 14 v12" stroke="#8B5A2B" stroke-width="1.2"/>
+            <path d="M7 10 l9-4 9 4 v12 l-9 4 -9-4z" fill="none" stroke="#8B5A2B" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.yeast">Yeast</span><span class="ing-pct" id="pfYeastPct">0.1%</span></div>
         <div class="ing-amt"><span id="pfYeast">0.5</span><span class="u">g</span></div>
@@ -1298,27 +1282,48 @@
   </section>
 
   <!-- ============ FINAL DOUGH BREAKDOWN ============ -->
-  <div class="section-title hidden" id="finalTitle"><span class="dot"></span> <span data-i18n="sec.final">Day 2–4 — Final dough mix</span></div>
   <section class="card hidden" id="finalCard">
+    <div class="card-header">
+      <div class="card-label" data-i18n="sec.final">Day 2–4 — Final dough mix</div>
+    </div>
     <p class="note" data-i18n="note.combine" style="margin: 0 0 8px 0;">Combine with the matured pre-ferment.</p>
     <div class="ingredients">
       <div class="ingredient">
-        <div class="ing-icon" style="background:#F4E9D5;">
-          <svg viewBox="0 0 32 32"><path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/><path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/></svg>
+        <div class="ing-icon" style="background: var(--tile-flour);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
+            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
+            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
+            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.flour">Flour</span></div>
         <div class="ing-amt"><span id="fdFlour">1050</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
-        <div class="ing-icon" style="background:#D9ECF5;">
-          <svg viewBox="0 0 32 32"><path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/></svg>
+        <div class="ing-icon" style="background: var(--tile-water);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#2F8DBE"/>
+            <path d="M12 19 C12 22 14 24 17 24" fill="none" stroke="#fff" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.water">Water</span></div>
         <div class="ing-amt"><span id="fdWater">772</span><span class="u">g</span></div>
       </div>
       <div class="ingredient">
-        <div class="ing-icon" style="background:#EDEDED;">
-          <svg viewBox="0 0 32 32"><rect x="10" y="10" width="12" height="15" rx="2" fill="#FAFAFA" stroke="#B5B8B8"/><path d="M11 8 h10 v2 h-10z" fill="#9DA0A0"/></svg>
+        <div class="ing-icon" style="background: var(--tile-salt);">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <!-- salt shaker -->
+            <circle cx="13" cy="3.5" r="0.7" fill="#2EB67E"/>
+            <circle cx="16" cy="2" r="0.8" fill="#2EB67E"/>
+            <circle cx="19" cy="3.5" r="0.7" fill="#2EB67E"/>
+            <path d="M10 6 a2 2 0 0 1 2 -2 h8 a2 2 0 0 1 2 2 v6 h-12 z" fill="#2EB67E"/>
+            <circle cx="13.2" cy="7.2" r="0.7" fill="#FFFFFF"/>
+            <circle cx="16" cy="6.5" r="0.8" fill="#FFFFFF"/>
+            <circle cx="18.8" cy="7.2" r="0.7" fill="#FFFFFF"/>
+            <path d="M10 12 v13 a2 2 0 0 0 2 2 h8 a2 2 0 0 0 2 -2 v-13 z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M13 19 q1.5 -1.4 3 0 q1.5 1.4 3 0" stroke="#2EB67E" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.55"/>
+          </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.salt">Salt</span></div>
         <div class="ing-amt"><span id="fdSalt">42</span><span class="u">g</span></div>
@@ -1327,8 +1332,10 @@
   </section>
 
   <!-- ============ RECIPES ============ -->
-  <div class="section-title"><span class="dot"></span> <span data-i18n="sec.presets">My Presets</span></div>
   <section class="card">
+    <div class="card-header">
+      <div class="card-label" data-i18n="sec.presets">My Presets</div>
+    </div>
     <div id="recipeList" class="recipe-list"></div>
     <div id="emptyRecipes" class="empty-recipes" data-i18n="preset.empty">No saved presets yet. Tap below to save the current settings.</div>
     <button class="save-btn" id="saveRecipeBtn">
@@ -1741,7 +1748,7 @@ function render() {
 
   // Pre-ferment cards
   const isPF = state.method !== 'direct';
-  ['pfBreakdownTitle','pfBreakdownCard','finalTitle','finalCard'].forEach(id => {
+  ['pfBreakdownCard','finalCard'].forEach(id => {
     $(id).classList.toggle('hidden', !isPF);
   });
 
@@ -2131,7 +2138,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Subtle shadow under the sticky header once the user scrolls
   const headerEl = document.querySelector('.header');
   const onScroll = () => {
-    if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 4);
     if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 4);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
