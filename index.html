@@ -322,8 +322,8 @@
     margin: 12px 16px;
     box-shadow: var(--shadow);
   }
-  /* Lift the first card up over the curved hero edge */
-  .card.first { margin-top: -18px; box-shadow: var(--shadow-lift); }
+  /* First card sits below the method tabs with comfortable breathing room */
+  .card.first { margin-top: 14px; box-shadow: var(--shadow-lift); }
 
   /* Divider between sub-sections inside a single card */
   .card-divider {
@@ -1084,7 +1084,6 @@
     </div>
     <div class="intro-text">
       <h1 data-i18n="intro.title">DOUGH CALCULATOR</h1>
-      <p id="introSub">Same-day direct dough — fast and forgiving.</p>
     </div>
   </div>
 
@@ -1796,8 +1795,8 @@ function render() {
   positionTicks('ballTicks', 150, 350);
   highlightTicks('ballTicks', state.ballWeight);
 
-  // Intro line
-  $('introSub').textContent = t('intro.' + state.method);
+  // Intro line (element removed — guard for safety)
+  if ($('introSub')) $('introSub').textContent = t('intro.' + state.method);
 
   // Tabs visual
   document.querySelectorAll('.tab').forEach(t => {
