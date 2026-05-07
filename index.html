@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#1B3A2E" />
+<meta name="theme-color" content="#F5611D" />
 <title>Pizza Tool — Dough Calculator</title>
 <!-- Favicon (browser tabs) -->
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -28,8 +28,9 @@
   html, body { margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
-    background: #F2EDE3;
-    color: #1B3A2E;
+    background: var(--bg);
+    color: var(--ink);
+    transition: background-color .25s ease, color .25s ease;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
     min-height: 100dvh;
@@ -60,23 +61,110 @@
 
   /* ---------- Theme tokens ---------- */
   :root {
-    --bg: #F2EDE3;
+    --bg: #FFF6EC;
     --card: #FFFFFF;
-    --ink: #1B3A2E;
-    --ink-2: #2A4A3C;
-    --muted: #8A8A8A;
-    --muted-2: #B5B0A6;
-    --mint: #DDEAD7;
-    --mint-2: #C9DFC5;
-    --green: #4F9E63;
-    --green-dark: #3E8650;
+    --ink: #2A2A2A;
+    --ink-2: #4A4A4A;
+    --muted: #9A9A9A;
+    --muted-2: #C8C2B8;
+    --mint: #DDF1E2;
+    --mint-2: #C5E8CD;
+    --green: #2EB67E;
+    --green-dark: #1F9B65;
+    --teal-1: #3FBE8A;
+    --teal-2: #2D9E72;
+    --orange: #F5811F;
+    --orange-dark: #E76F0E;
+    --orange-light: #FFB374;
     --coral: #E76F58;
     --coral-dark: #D6573F;
-    --line: #ECE7DB;
-    --shadow: 0 6px 20px rgba(27, 58, 46, 0.06), 0 1px 3px rgba(27, 58, 46, 0.04);
+    --yellow: #F5C842;
+    --yellow-dark: #E0B028;
+    --tile-flour: #FFE9CC;
+    --tile-flour-ink: #F5811F;
+    --tile-water: #D6ECF7;
+    --tile-water-ink: #2F8DBE;
+    --tile-salt:  #DDF1E2;
+    --tile-salt-ink: #2EB67E;
+    --tile-oil:   #E8DAF5;
+    --tile-oil-ink: #8B5BC2;
+    --tile-yeast: #F5E1C4;
+    --tile-yeast-ink: #B8772E;
+    --line: #F1EBDF;
+    --shadow: 0 6px 20px rgba(245, 129, 31, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-lift: 0 10px 30px rgba(245, 129, 31, 0.14), 0 2px 6px rgba(0, 0, 0, 0.05);
     --radius-card: 22px;
     --radius-pill: 999px;
+    /* Surfaces that were hardcoded white/cream — token-ised so dark mode can override */
+    --surface-1: #FFFFFF;     /* tabs, inputs, adjust-pill */
+    --surface-2: #FFF6EC;     /* recipe row alt */
+    --slider-track: #F1E5D2;
+    --modal-back: rgba(40, 30, 20, 0.45);
   }
+
+  /* ---------- Dark mode tokens ---------- */
+  :root[data-theme="dark"] {
+    --bg: #14110D;
+    --card: #221E18;
+    --ink: #F5EFE5;
+    --ink-2: #D5CCBE;
+    --muted: #8A8378;
+    --muted-2: #5A5249;
+    --mint: #1F3A2A;
+    --mint-2: #295339;
+    --line: #3A3229;
+    --shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-lift: 0 10px 30px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35);
+    --tile-flour: #3D2A14;
+    --tile-flour-ink: #FFA557;
+    --tile-water: #1A2F3D;
+    --tile-water-ink: #6FCFEF;
+    --tile-salt:  #1A3A2A;
+    --tile-salt-ink: #5AD8A0;
+    --tile-oil:   #2C1F44;
+    --tile-oil-ink: #B795E2;
+    --tile-yeast: #3D2D14;
+    --tile-yeast-ink: #E5B97A;
+    --surface-1: #2C261F;
+    --surface-2: #1B1813;
+    --slider-track: #3A3229;
+    --modal-back: rgba(0, 0, 0, 0.65);
+  }
+  /* Header gradient gets a touch deeper in dark mode */
+  :root[data-theme="dark"] .header {
+    background: linear-gradient(135deg, #C75F18 0%, #B14F0F 50%, #8E3F09 100%);
+  }
+  /* Ingredient-card SVG icon backgrounds use hardcoded inline colors —
+     re-tint them for dark mode via class overrides so they don't glow white */
+  :root[data-theme="dark"] .card-icon.tinted-cream { background: #3D2A14; }
+  :root[data-theme="dark"] .card-icon.tinted-blue  { background: #1A2F3D; }
+  :root[data-theme="dark"] .card-icon.tinted-green { background: var(--mint); }
+  :root[data-theme="dark"] .card-icon.tinted-red   { background: #3D1F1A; }
+  :root[data-theme="dark"] .card-icon.tinted-amber { background: #3D2D14; }
+  /* Pre-ferment ingredient row icons (inline backgrounds via style attribute) */
+  :root[data-theme="dark"] .ingredient .ing-icon[style*="F4E9D5"] { background: #3D2A14 !important; }
+  :root[data-theme="dark"] .ingredient .ing-icon[style*="D9ECF5"] { background: #1A2F3D !important; }
+  :root[data-theme="dark"] .ingredient .ing-icon[style*="EDEDED"] { background: #2A2A2A !important; }
+  :root[data-theme="dark"] .ingredient .ing-icon[style*="F1E2C5"] { background: #3D2D14 !important; }
+  /* Inputs / selects */
+  :root[data-theme="dark"] .input-line {
+    background: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  :root[data-theme="dark"] .input-line option { background: var(--card); color: var(--ink); }
+  :root[data-theme="dark"] .modal-close.ghost { color: var(--ink-2); border-color: var(--line); }
+  :root[data-theme="dark"] .modal-close.ghost:hover { background: var(--surface-2); }
+  /* Adjust-pill and water-tinted bits */
+  :root[data-theme="dark"] .adjust-pill {
+    background: var(--surface-1);
+    border-color: var(--tile-water);
+    color: var(--tile-water-ink);
+  }
+  :root[data-theme="dark"] .adjust-pill:hover { background: #1A2F3D; }
+  /* Subtle border on cards in dark to lift off background */
+  :root[data-theme="dark"] .card { border: 1px solid var(--line); }
+  :root[data-theme="dark"] .ing-tile { background: var(--surface-1); border-color: var(--line); }
 
   /* ---------- App layout (mobile-first, max width on desktop) ---------- */
   .app {
@@ -91,52 +179,105 @@
     padding-bottom: 32px;
   }
 
-  /* ---------- Header ---------- */
+  /* ---------- Header (orange hero) ---------- */
   .header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--ink);
+    position: relative;
+    z-index: 5;
+    background: linear-gradient(135deg, #FF9A52 0%, #F5811F 45%, #E76F0E 100%);
     color: #fff;
-    padding: 18px 20px 18px 20px;
-    padding-top: max(18px, env(safe-area-inset-top));
+    padding: 22px 22px 28px 22px;
+    padding-top: max(22px, env(safe-area-inset-top));
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    box-shadow: 0 2px 10px rgba(27, 58, 46, 0); /* invisible by default */
+    overflow: hidden;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
     transition: box-shadow .2s ease;
   }
-  .header.scrolled {
-    box-shadow: 0 4px 14px rgba(27, 58, 46, 0.18);
+  .header::before {
+    /* sun-burst rays accent */
+    content: "";
+    position: absolute;
+    right: -18px; top: 60%;
+    width: 60px; height: 4px;
+    background: #FFD58A;
+    border-radius: 2px;
+    transform: rotate(20deg);
+    box-shadow:
+      -10px -14px 0 -1px #FFD58A,
+      -20px -22px 0 -1px #FFD58A,
+      -32px -16px 0 -1px #FFD58A;
+    opacity: 0.85;
+    pointer-events: none;
   }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-emoji { font-size: 34px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); }
+  .header.scrolled {
+    box-shadow: 0 8px 18px rgba(231, 111, 14, 0.22);
+  }
+  .brand { display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0; }
+  .brand-emoji {
+    width: 48px; height: 48px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));
+  }
+  .brand-emoji svg { width: 100%; height: 100%; }
   .brand-text { display: flex; flex-direction: column; line-height: 1; }
-  .brand-title { font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
-  .brand-sub { font-size: 13px; font-weight: 700; color: var(--green); letter-spacing: 2px; margin-top: 4px; }
+  .brand-title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  }
+  .brand-sub {
+    font-size: 22px;
+    font-weight: 900;
+    color: #FFD58A;
+    letter-spacing: 2px;
+    margin-top: 2px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.10);
+  }
+  .brand-tag {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin-top: 8px;
+    letter-spacing: 0.2px;
+    line-height: 1.35;
+  }
+  .header-pizza {
+    position: absolute;
+    right: -28px; top: 38%;
+    width: 130px; height: 130px;
+    pointer-events: none;
+    transform: rotate(8deg);
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.18));
+  }
   .icon-btn {
-    width: 44px; height: 44px;
-    background: rgba(255,255,255,0.08);
+    position: relative;
+    z-index: 2;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.20);
+    border: 1.5px solid rgba(255,255,255,0.55);
     border-radius: 50%;
     display: grid; place-items: center;
     color: #fff;
     transition: background .15s ease;
+    flex-shrink: 0;
   }
-  .icon-btn:hover { background: rgba(255,255,255,0.16); }
-  .icon-btn svg { width: 22px; height: 22px; }
+  .icon-btn:hover { background: rgba(255,255,255,0.32); }
+  .icon-btn svg { width: 20px; height: 20px; }
 
   /* ---------- Method tabs ---------- */
   .tabs {
     display: flex;
     gap: 8px;
-    padding: 16px 16px 0 16px;
+    padding: 14px 16px 0 16px;
   }
   .tab {
     flex: 1;
-    padding: 11px 8px;
-    background: #fff;
+    padding: 10px 6px;
+    background: var(--surface-1);
     border-radius: 14px;
     font-weight: 700;
     font-size: 13px;
@@ -148,37 +289,29 @@
     transition: all .15s ease;
   }
   .tab.active {
-    background: var(--ink);
+    background: var(--orange);
     color: #fff;
+    border-color: var(--orange-dark);
+    box-shadow: 0 4px 14px rgba(245, 129, 31, 0.32);
   }
   .tab .tab-sub { display: block; font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; letter-spacing: 0.5px; }
-  .tab.active .tab-sub { color: var(--green); }
+  .tab.active .tab-sub { color: #FFE5C9; }
 
-  /* ---------- Page intro ---------- */
+  /* ---------- Page intro (used for method context only) ---------- */
   .intro {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 18px 20px 6px 20px;
+    gap: 12px;
+    padding: 14px 22px 0 22px;
   }
-  .intro-img {
-    width: 78px; height: 78px;
-    flex-shrink: 0;
-    display: grid; place-items: center;
-  }
-  .intro-text h1 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    color: var(--ink);
-    line-height: 1.1;
-  }
+  .intro-img { display: none; }
+  .intro-text h1 { display: none; } /* title now lives in hero header */
   .intro-text p {
-    margin: 6px 0 0 0;
-    font-size: 14px;
+    margin: 0;
+    font-size: 13px;
     color: var(--muted);
-    line-height: 1.35;
+    line-height: 1.4;
+    font-style: italic;
   }
 
   /* ---------- Cards ---------- */
@@ -189,58 +322,76 @@
     margin: 12px 16px;
     box-shadow: var(--shadow);
   }
+  /* Lift the first card up over the curved hero edge */
+  .card.first { margin-top: -18px; box-shadow: var(--shadow-lift); }
+
   .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 12px;
   }
   .card-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.2px;
     color: var(--ink);
     text-transform: uppercase;
+    flex: 1;
   }
   .card-icon {
-    width: 54px; height: 54px;
+    width: 48px; height: 48px;
     background: var(--mint);
     border-radius: 50%;
     display: grid; place-items: center;
     flex-shrink: 0;
     overflow: hidden;
   }
-  .card-icon svg { width: 38px; height: 38px; color: var(--ink); }
+  .card-icon svg { width: 32px; height: 32px; color: var(--ink); }
   .card-icon.tinted-cream { background: #F4E9D5; }
   .card-icon.tinted-red   { background: #F7D9CF; }
   .card-icon.tinted-amber { background: #F1E2C5; }
-  .card-icon.tinted-blue  { background: #D9ECF5; }
+  .card-icon.tinted-blue  { background: #D6ECF7; }
+  .card-icon.tinted-green { background: var(--mint); }
 
   /* ---------- Big number + slider ---------- */
+  .big-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 18px 0;
+  }
   .big-number {
-    font-size: 64px;
-    font-weight: 800;
+    font-size: 76px;
+    font-weight: 900;
     line-height: 1;
-    color: var(--ink);
-    letter-spacing: -1px;
-    margin: 4px 0 18px 0;
+    color: var(--orange);
+    letter-spacing: -2px;
+    margin: 0;
   }
   .big-number .unit {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--muted-2);
-    margin-left: 4px;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--orange-light);
+    margin-left: 2px;
+    letter-spacing: 0;
+  }
+  .big-illustration {
+    width: 90px; height: 90px;
+    flex-shrink: 0;
   }
   .slider {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
     height: 6px;
-    background: #E6E1D6;
+    background: var(--slider-track);
     border-radius: 999px;
     outline: none;
     margin: 4px 0 12px 0;
-    background-image: linear-gradient(var(--green), var(--green));
+    background-image: linear-gradient(var(--orange), var(--orange));
     background-size: 50% 100%;
     background-repeat: no-repeat;
   }
@@ -249,19 +400,26 @@
     appearance: none;
     width: 22px; height: 22px;
     border-radius: 50%;
-    background: var(--green);
+    background: var(--orange);
     border: 3px solid #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    box-shadow: 0 2px 6px rgba(245, 129, 31, 0.4);
     cursor: pointer;
   }
   .slider::-moz-range-thumb {
     width: 22px; height: 22px;
     border-radius: 50%;
-    background: var(--green);
+    background: var(--orange);
     border: 3px solid #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    box-shadow: 0 2px 6px rgba(245, 129, 31, 0.4);
     cursor: pointer;
   }
+  /* Green-themed slider variant for sub-controls (inside settings, % of flour, etc.) */
+  .slider.green {
+    background-image: linear-gradient(var(--green), var(--green));
+  }
+  .slider.green::-webkit-slider-thumb { background: var(--green); box-shadow: 0 2px 6px rgba(46, 182, 126, 0.4); }
+  .slider.green::-moz-range-thumb     { background: var(--green); box-shadow: 0 2px 6px rgba(46, 182, 126, 0.4); }
+
   .ticks {
     position: relative;
     height: 18px;
@@ -277,36 +435,153 @@
     cursor: pointer;
     transform: translateX(-50%);
   }
-  .ticks .active { color: var(--green); }
+  .ticks .active { color: var(--orange); font-weight: 800; }
+  .ticks.green-active .active { color: var(--green); }
 
   /* ---------- Stepper ---------- */
   .stepper {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-top: 6px;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
   }
   .step-btn {
-    width: 64px; height: 64px;
-    background: var(--mint);
-    border-radius: 18px;
+    width: 44px; height: 44px;
+    background: var(--green);
+    border-radius: 50%;
     display: grid; place-items: center;
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 700;
-    color: var(--ink);
+    color: #fff;
     transition: transform .08s ease, background .15s ease;
+    box-shadow: 0 3px 8px rgba(46, 182, 126, 0.32);
+    flex-shrink: 0;
   }
-  .step-btn:active { transform: scale(0.94); background: var(--mint-2); }
+  .step-btn:active { transform: scale(0.94); background: var(--green-dark); }
   .step-value {
     flex: 1;
     text-align: center;
     font-size: 56px;
-    font-weight: 800;
-    color: var(--ink);
+    font-weight: 900;
+    color: var(--green);
     line-height: 1;
+    letter-spacing: -1px;
+  }
+  .stepper-sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 6px;
   }
 
-  /* ---------- Ingredient list ---------- */
+  /* ---------- Ingredient TILES (new colorful grid) ---------- */
+  .ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .ing-tile {
+    background: var(--surface-1);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 4px 12px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform .15s ease, box-shadow .15s ease;
+    min-width: 0;
+  }
+  .ing-tile:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .ing-icon-circle {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    margin-bottom: 6px;
+  }
+  .ing-icon-circle svg { width: 28px; height: 28px; }
+  .ing-tile.flour .ing-icon-circle { background: var(--tile-flour); }
+  .ing-tile.water .ing-icon-circle { background: var(--tile-water); }
+  .ing-tile.salt  .ing-icon-circle { background: var(--tile-salt);  }
+  .ing-tile.oil   .ing-icon-circle { background: var(--tile-oil);   }
+  .ing-tile.yeast .ing-icon-circle { background: var(--tile-yeast); }
+  .ing-tile-name {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .ing-tile.flour .ing-tile-name { color: var(--tile-flour-ink); }
+  .ing-tile.water .ing-tile-name { color: var(--tile-water-ink); }
+  .ing-tile.salt  .ing-tile-name { color: var(--tile-salt-ink);  }
+  .ing-tile.oil   .ing-tile-name { color: var(--tile-oil-ink);   }
+  .ing-tile.yeast .ing-tile-name { color: var(--tile-yeast-ink); }
+  .ing-tile-amt {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: center;
+  }
+  /* Drop font when number is long (e.g. 1.92 kg) so it never wraps */
+  @media (max-width: 400px) {
+    .ing-tile-amt { font-size: 14px; letter-spacing: -0.5px; }
+  }
+  .ing-tile-amt .u {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  .ing-tile { padding-left: 2px; padding-right: 2px; }
+  /* Hydration footer + adjust button */
+  .ing-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    gap: 10px;
+  }
+  .ing-foot-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .ing-foot-info svg { width: 14px; height: 14px; color: var(--tile-water-ink); flex-shrink: 0; }
+  .adjust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface-1);
+    border: 1.5px solid var(--tile-water);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--tile-water-ink);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    transition: background .15s ease;
+    flex-shrink: 0;
+  }
+  .adjust-pill:hover { background: var(--tile-water); }
+  .adjust-pill svg { width: 12px; height: 12px; }
+
+  /* ---------- Compatibility: keep existing .ingredients (used in pre-ferment cards) ---------- */
   .ingredients { margin-top: 6px; }
   .ingredient {
     display: grid;
@@ -365,9 +640,76 @@
   }
   .section-title .dot {
     width: 6px; height: 6px;
-    background: var(--coral);
+    background: var(--orange);
     border-radius: 50%;
   }
+
+  /* ---------- Sticky bottom CTA bar ---------- */
+  .cta-bar {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: 448px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, var(--teal-1) 0%, var(--teal-2) 100%);
+    border-radius: 22px;
+    padding: 10px 12px 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 12px 30px rgba(46, 158, 114, 0.32), 0 2px 6px rgba(0, 0, 0, 0.06);
+    z-index: 60;
+    color: #fff;
+  }
+  .cta-pizza-icon {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .cta-pizza-icon svg { width: 22px; height: 22px; }
+  .cta-text { flex: 1; min-width: 0; line-height: 1.05; }
+  .cta-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    display: block;
+  }
+  .cta-value {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+    display: block;
+  }
+  .cta-value .underline {
+    border-bottom: 3px solid var(--yellow);
+    padding-bottom: 1px;
+  }
+  .cta-btn {
+    background: var(--yellow);
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 10px rgba(245, 200, 66, 0.45);
+    transition: transform .08s ease, background .15s ease;
+    flex-shrink: 0;
+  }
+  .cta-btn:hover { background: var(--yellow-dark); }
+  .cta-btn:active { transform: scale(0.96); }
+  .cta-btn svg { width: 18px; height: 18px; }
 
   /* ---------- Recipe row ---------- */
   .recipe-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
@@ -376,18 +718,19 @@
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
-    background: #FAF7F0;
+    background: var(--surface-2);
     border-radius: 14px;
+    border: 1px solid var(--line);
   }
-  .recipe-row .r-name { flex: 1; font-weight: 700; font-size: 15px; }
+  .recipe-row .r-name { flex: 1; font-weight: 700; font-size: 15px; color: var(--ink); }
   .recipe-row .r-meta { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 600; }
   .recipe-row .r-actions { display: flex; gap: 6px; }
   .pill-btn {
     padding: 7px 12px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 700;
-    background: var(--ink);
+    font-weight: 800;
+    background: var(--orange);
     color: #fff;
     letter-spacing: 0.4px;
   }
@@ -405,7 +748,7 @@
     margin-top: 10px;
     padding: 12px;
     background: var(--mint);
-    color: var(--ink);
+    color: var(--green-dark);
     border-radius: 14px;
     font-weight: 800;
     font-size: 13px;
@@ -416,6 +759,7 @@
     justify-content: center;
     gap: 8px;
     transition: background .15s ease;
+    border: 1.5px solid var(--mint-2);
   }
   .save-btn:hover { background: var(--mint-2); }
   .save-btn svg { width: 16px; height: 16px; }
@@ -423,7 +767,7 @@
   /* ---------- Settings modal ---------- */
   .modal-back {
     position: fixed; inset: 0;
-    background: rgba(27, 58, 46, 0.45);
+    background: var(--modal-back);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     z-index: 100;
@@ -471,11 +815,11 @@
     text-transform: uppercase;
     letter-spacing: 0.8px;
   }
-  .field-label .v { color: var(--green); }
+  .field-label .v { color: var(--orange); }
   .modal-close {
     width: 100%;
     padding: 14px;
-    background: var(--ink);
+    background: var(--orange);
     color: #fff;
     border-radius: 14px;
     font-weight: 800;
@@ -485,6 +829,7 @@
     margin-top: 6px;
     transition: background .15s ease, color .15s ease;
   }
+  .modal-close:hover { background: var(--orange-dark); }
   .modal-close.ghost {
     background: transparent;
     color: var(--ink-2);
@@ -493,7 +838,7 @@
     margin-bottom: 8px;
   }
   .modal-close.ghost:hover {
-    background: #fff;
+    background: var(--surface-1);
     color: var(--coral-dark);
   }
 
@@ -504,17 +849,17 @@
     border: 2px solid var(--line);
     border-radius: 14px;
     font-size: 16px;
-    background: #fff;
+    background: var(--surface-1);
     color: var(--ink);
     outline: none;
     transition: border-color .15s;
   }
-  .input-line:focus { border-color: var(--green); }
+  .input-line:focus { border-color: var(--orange); }
 
   /* ---------- Toast ---------- */
   .toast {
     position: fixed;
-    bottom: 100px;
+    bottom: 32px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--ink);
@@ -571,7 +916,7 @@
   .adjust-value {
     font-size: 15px;
     font-weight: 800;
-    color: var(--green-dark);
+    color: var(--orange-dark);
   }
   .adjust-chevron {
     width: 18px;
@@ -603,6 +948,7 @@
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1px;
+    flex-shrink: 0;
   }
   .live-dot {
     width: 7px; height: 7px;
@@ -620,30 +966,74 @@
     animation: amtFlash .4s ease;
   }
   @keyframes amtFlash {
-    0%   { color: var(--green); }
+    0%   { color: var(--orange); }
     100% { color: var(--ink); }
   }
+  .ing-tile-amt.flash { animation: amtFlash .4s ease; }
 </style>
 </head>
 <body>
 
 <div class="app">
 
-  <!-- ============ HEADER ============ -->
+  <!-- ============ HEADER (orange hero) ============ -->
   <header class="header">
     <div class="brand">
-      <div class="brand-emoji">🍕</div>
+      <div class="brand-emoji" aria-hidden="true">
+        <!-- pizza slice -->
+        <svg viewBox="0 0 64 64">
+          <defs>
+            <linearGradient id="sliceCheese" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#FFE39A"/>
+              <stop offset="100%" stop-color="#F5C56A"/>
+            </linearGradient>
+          </defs>
+          <!-- crust -->
+          <path d="M8 56 L32 8 L56 56 Z" fill="#E8B26A" stroke="#A86B2C" stroke-width="2.2" stroke-linejoin="round"/>
+          <!-- cheese surface -->
+          <path d="M14 53 L32 17 L50 53 Z" fill="url(#sliceCheese)"/>
+          <!-- pepperoni -->
+          <circle cx="26" cy="42" r="4" fill="#D4392B"/>
+          <circle cx="38" cy="38" rx="3.4" ry="3.4" fill="#D4392B"/>
+          <circle cx="32" cy="50" r="3.2" fill="#D4392B"/>
+          <!-- highlights -->
+          <ellipse cx="25" cy="40.5" rx="1.2" ry="0.7" fill="#F26E5C" opacity="0.85"/>
+          <ellipse cx="37" cy="36.5" rx="1.0" ry="0.6" fill="#F26E5C" opacity="0.85"/>
+          <!-- basil -->
+          <ellipse cx="32" cy="32" rx="1.5" ry="0.9" fill="#5C8B3F"/>
+          <ellipse cx="28" cy="48" rx="1.3" ry="0.8" fill="#5C8B3F"/>
+        </svg>
+      </div>
       <div class="brand-text">
         <div class="brand-title">PIZZA</div>
         <div class="brand-sub" data-i18n="header.tool">TOOL</div>
+        <div class="brand-tag" data-i18n="header.tag">Calculate your dough ingredients &amp; pizzas</div>
       </div>
     </div>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <!-- gear icon, kept since it opens the existing settings modal -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
+    <!-- decorative pizza wheel peeking from the right -->
+    <svg class="header-pizza" viewBox="0 0 130 130" aria-hidden="true">
+      <circle cx="65" cy="65" r="60" fill="#E8B26A" stroke="#A86B2C" stroke-width="2.5"/>
+      <circle cx="65" cy="65" r="50" fill="#F5C56A"/>
+      <circle cx="65" cy="65" r="46" fill="#E15A3F" opacity="0.92"/>
+      <circle cx="65" cy="65" r="46" fill="#FFE39A" opacity="0.35"/>
+      <!-- pepperoni -->
+      <circle cx="48" cy="48" r="7" fill="#C13A2C"/>
+      <circle cx="80" cy="44" r="7" fill="#C13A2C"/>
+      <circle cx="44" cy="78" r="7" fill="#C13A2C"/>
+      <circle cx="84" cy="80" r="7" fill="#C13A2C"/>
+      <circle cx="64" cy="64" r="6" fill="#C13A2C"/>
+      <!-- basil leaves -->
+      <ellipse cx="62" cy="36" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(-12 62 36)"/>
+      <ellipse cx="56" cy="92" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(18 56 92)"/>
+      <ellipse cx="92" cy="62" rx="3" ry="1.6" fill="#5C8B3F" transform="rotate(72 92 62)"/>
+    </svg>
   </header>
 
   <!-- ============ METHOD TABS ============ -->
@@ -679,74 +1069,33 @@
     </div>
   </div>
 
-  <!-- ============ NUMBER OF PIZZAS ============ -->
-  <section class="card">
-    <div class="card-header">
-      <div class="card-label" data-i18n="card.pizzas">Number of Pizzas</div>
-      <div class="card-icon tinted-red" aria-hidden="true">
-        <!-- whole pizza, top-down -->
-        <svg viewBox="0 0 40 40">
-          <!-- crust outer -->
-          <circle cx="20" cy="20" r="16" fill="#D9B681"/>
-          <!-- crust rim shadow -->
-          <circle cx="20" cy="20" r="16" fill="none" stroke="#A07A4F" stroke-width="0.8" opacity="0.4"/>
-          <!-- sauce -->
-          <circle cx="20" cy="20" r="13" fill="#E15A3F"/>
-          <!-- cheese -->
-          <circle cx="20" cy="20" r="13" fill="#FFE39A" opacity="0.55"/>
-          <!-- pepperoni -->
-          <circle cx="15" cy="15" r="2.2" fill="#C13A2C"/>
-          <circle cx="25" cy="14" r="2.2" fill="#C13A2C"/>
-          <circle cx="14" cy="24" r="2.2" fill="#C13A2C"/>
-          <circle cx="25" cy="25" r="2.2" fill="#C13A2C"/>
-          <circle cx="20" cy="20" r="1.6" fill="#C13A2C"/>
-          <!-- pepperoni highlights -->
-          <circle cx="14.4" cy="14.5" r="0.6" fill="#E76050" opacity="0.7"/>
-          <circle cx="24.4" cy="13.5" r="0.6" fill="#E76050" opacity="0.7"/>
-          <!-- basil dots -->
-          <ellipse cx="20" cy="13" rx="1" ry="0.6" fill="#5C8B3F"/>
-          <ellipse cx="18.5" cy="27" rx="1" ry="0.6" fill="#5C8B3F"/>
-        </svg>
-      </div>
-    </div>
-    <div class="stepper">
-      <button class="step-btn" id="pizzaMinus" data-i18n-aria="aria.minus" aria-label="One fewer pizza">−</button>
-      <div class="step-value" id="pizzaCount">6</div>
-      <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza">+</button>
-    </div>
-  </section>
-
-  <!-- ============ DOUGH BALL WEIGHT ============ -->
-  <section class="card">
+  <!-- ============ DOUGH BALL WEIGHT (now first - big hero number) ============ -->
+  <section class="card first">
     <div class="card-header">
       <div class="card-label" data-i18n="card.weight">Dough Ball Weight</div>
-      <div class="card-icon tinted-cream" aria-hidden="true">
-        <!-- kitchen scale + dough ball -->
-        <svg viewBox="0 0 40 40">
+    </div>
+    <div class="big-row">
+      <div class="big-number"><span id="ballWeightVal">250</span><span class="unit">g</span></div>
+      <div class="big-illustration" aria-hidden="true">
+        <!-- big dough ball illustration -->
+        <svg viewBox="0 0 100 100">
           <defs>
-            <radialGradient id="ic-dough" cx="40%" cy="38%" r="65%">
-              <stop offset="0%" stop-color="#FFF6E0"/>
-              <stop offset="60%" stop-color="#F2E6C9"/>
+            <radialGradient id="bigDough" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#FFFAEC"/>
+              <stop offset="55%" stop-color="#F2E6C9"/>
               <stop offset="100%" stop-color="#D9C7A0"/>
             </radialGradient>
           </defs>
-          <!-- scale base -->
-          <rect x="9" y="29" width="22" height="5" rx="1.6" fill="#6B7A6F"/>
-          <rect x="9" y="29" width="22" height="2" rx="1" fill="#8DA092"/>
-          <!-- platform -->
-          <rect x="6" y="25" width="28" height="4" rx="2" fill="#A6B5A8"/>
-          <!-- dial / display dot -->
-          <circle cx="27" cy="32" r="1.1" fill="#3E5546"/>
-          <!-- dough ball on platform -->
-          <ellipse cx="20" cy="24" rx="9" ry="2" fill="#C8B98F" opacity="0.55"/>
-          <ellipse cx="20" cy="18" rx="10" ry="9" fill="url(#ic-dough)"/>
-          <ellipse cx="16" cy="14" rx="2.6" ry="1.4" fill="#FFFEF6" opacity="0.7"/>
-          <circle cx="23" cy="16" r="0.5" fill="#C7B58F"/>
-          <circle cx="19" cy="22" r="0.4" fill="#C7B58F"/>
+          <ellipse cx="50" cy="82" rx="34" ry="6" fill="#E0D6BC" opacity="0.55"/>
+          <ellipse cx="50" cy="50" rx="38" ry="34" fill="url(#bigDough)"/>
+          <ellipse cx="38" cy="38" rx="10" ry="6" fill="#FFFEF6" opacity="0.65"/>
+          <circle cx="62" cy="40" r="1.4" fill="#C7B58F"/>
+          <circle cx="55" cy="60" r="1.0" fill="#C7B58F"/>
+          <circle cx="42" cy="58" r="0.9" fill="#C7B58F"/>
+          <circle cx="68" cy="56" r="0.9" fill="#C7B58F"/>
         </svg>
       </div>
     </div>
-    <div class="big-number"><span id="ballWeightVal">250</span><span class="unit">g</span></div>
     <input type="range" min="150" max="350" step="10" value="250" id="ballWeight" class="slider" aria-label="Dough ball weight" />
     <div class="ticks" id="ballTicks">
       <span data-v="150">150 g</span>
@@ -757,78 +1106,130 @@
     </div>
   </section>
 
-  <!-- ============ TOTAL INGREDIENTS ============ -->
+  <!-- ============ NUMBER OF PIZZAS (green circle stepper) ============ -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-icon tinted-green" aria-hidden="true">
+        <!-- pizza slice icon (green-tinted) -->
+        <svg viewBox="0 0 40 40">
+          <path d="M6 34 L20 6 L34 34 Z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="16" cy="26" r="2.1" fill="#2EB67E"/>
+          <circle cx="24" cy="24" r="1.8" fill="#2EB67E"/>
+          <circle cx="20" cy="30" r="1.6" fill="#2EB67E"/>
+        </svg>
+      </div>
+      <div class="card-label" data-i18n="card.pizzas">Number of Pizzas</div>
+    </div>
+    <div class="stepper">
+      <button class="step-btn" id="pizzaMinus" data-i18n-aria="aria.minus" aria-label="One fewer pizza">−</button>
+      <div class="step-value" id="pizzaCount">6</div>
+      <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza">+</button>
+    </div>
+    <div class="stepper-sub" id="pizzaCountSub">Total dough balls: 6</div>
+  </section>
+
+  <!-- ============ INGREDIENTS NEEDED (colorful tile grid) ============ -->
   <section class="card" id="totalsCard">
     <div class="card-header">
-      <div class="card-label" data-i18n="card.totals">Total Ingredients</div>
+      <div class="card-icon tinted-blue" aria-hidden="true">
+        <!-- kitchen scale icon -->
+        <svg viewBox="0 0 40 40">
+          <rect x="9" y="28" width="22" height="6" rx="2" fill="#2F8DBE"/>
+          <rect x="6" y="24" width="28" height="4" rx="2" fill="#3FB0E0"/>
+          <ellipse cx="20" cy="22" rx="9" ry="3" fill="#2F8DBE" opacity="0.35"/>
+          <ellipse cx="20" cy="16" rx="10" ry="9" fill="#FFF6E0"/>
+          <ellipse cx="16" cy="13" rx="2.5" ry="1.4" fill="#FFFEF6" opacity="0.7"/>
+          <circle cx="27" cy="32" r="1.1" fill="#1C5F80"/>
+        </svg>
+      </div>
+      <div class="card-label" data-i18n="card.totals">Ingredients Needed</div>
       <div class="live-pill" id="livePill" aria-hidden="true">
         <span class="live-dot"></span>LIVE
       </div>
     </div>
-    <div class="ingredients">
-      <div class="ingredient">
-        <div class="ing-icon" style="background:#F4E9D5;">
-          <!-- flour bowl -->
-          <svg viewBox="0 0 32 32">
-            <path d="M5 19 Q16 16 27 19 L25 26 Q16 28 7 26 Z" fill="#A07A4F"/>
-            <path d="M6 19 Q16 14 26 19" fill="#FFF8E8"/>
-            <ellipse cx="16" cy="18.5" rx="9" ry="2.2" fill="#FFFDF4"/>
-            <circle cx="13" cy="17" r="0.8" fill="#E2D6BB"/>
-            <circle cx="19" cy="17.5" r="0.7" fill="#E2D6BB"/>
+
+    <div class="ingredients-grid">
+      <!-- FLOUR -->
+      <div class="ing-tile flour">
+        <div class="ing-icon-circle">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <!-- flour bowl with sparkle -->
+            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
+            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
+            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
+            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
           </svg>
         </div>
-        <div>
-          <span class="ing-name" data-i18n="ing.flour">Flour</span>
-          <span class="ing-pct">100%</span>
-        </div>
-        <div class="ing-amt"><span id="totFlour">1500</span><span class="u" id="totFlourU">g</span></div>
+        <div class="ing-tile-name" data-i18n="ing.flour">Flour</div>
+        <div class="ing-tile-amt"><span id="totFlour">1500</span><span class="u" id="totFlourU">g</span></div>
       </div>
 
-      <div class="ingredient">
-        <div class="ing-icon" style="background:#D9ECF5;">
-          <svg viewBox="0 0 32 32">
-            <path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#3B8DB8"/>
-            <path d="M12 19 C12 22 14 24 17 24" fill="none" stroke="#fff" stroke-opacity="0.7" stroke-width="1.5"/>
+      <!-- WATER -->
+      <div class="ing-tile water">
+        <div class="ing-icon-circle">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 4 C10 13 7 17 7 21 a9 9 0 0 0 18 0 c0-4-3-8-9-17z" fill="#2F8DBE"/>
+            <path d="M12 19 C12 22 14 24 17 24" fill="none" stroke="#fff" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
         </div>
-        <div>
-          <span class="ing-name" data-i18n="ing.water">Water</span>
-          <span class="ing-pct" id="totWaterPct">65%</span>
-        </div>
-        <div class="ing-amt"><span id="totWater">975</span><span class="u">g</span></div>
+        <div class="ing-tile-name" data-i18n="ing.water">Water</div>
+        <div class="ing-tile-amt"><span id="totWater">975</span><span class="u">g</span></div>
       </div>
 
-      <div class="ingredient">
-        <div class="ing-icon" style="background:#EDEDED;">
-          <svg viewBox="0 0 32 32">
-            <path d="M11 8 h10 v2 h-10z" fill="#9DA0A0"/>
-            <path d="M10 10 h12 v15 a2 2 0 0 1-2 2 h-8 a2 2 0 0 1-2-2z" fill="#FAFAFA" stroke="#B5B8B8" stroke-width="0.7"/>
-            <circle cx="14" cy="14" r="0.7" fill="#B5B8B8"/>
-            <circle cx="18" cy="14" r="0.7" fill="#B5B8B8"/>
-            <circle cx="16" cy="16" r="0.7" fill="#B5B8B8"/>
+      <!-- SALT -->
+      <div class="ing-tile salt">
+        <div class="ing-icon-circle">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <!-- mortar + salt -->
+            <path d="M5 18 Q16 14 27 18 L24 26 Q16 29 8 26 Z" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.4"/>
+            <ellipse cx="16" cy="18" rx="10" ry="2.6" fill="#FFFFFF" stroke="#2EB67E" stroke-width="1.2"/>
+            <circle cx="13" cy="17" r="0.8" fill="#2EB67E"/>
+            <circle cx="19" cy="17.4" r="0.7" fill="#2EB67E"/>
+            <circle cx="16" cy="18.6" r="0.6" fill="#2EB67E"/>
+            <!-- pestle -->
+            <path d="M22 6 l4 4 -3 3 -4-4z" fill="#2EB67E"/>
           </svg>
         </div>
-        <div>
-          <span class="ing-name" data-i18n="ing.salt">Salt</span>
-          <span class="ing-pct" id="totSaltPct">2.8%</span>
-        </div>
-        <div class="ing-amt"><span id="totSalt">42</span><span class="u">g</span></div>
+        <div class="ing-tile-name" data-i18n="ing.salt">Salt</div>
+        <div class="ing-tile-amt"><span id="totSalt">42</span><span class="u">g</span></div>
       </div>
 
-      <div class="ingredient">
-        <div class="ing-icon" style="background:#F1E2C5;">
-          <svg viewBox="0 0 32 32">
-            <rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/>
-            <rect x="7" y="9" width="18" height="14" rx="2" fill="none" stroke="#A07A4F" stroke-width="0.8"/>
-            <path d="M7 16 h18 M16 9 v14" stroke="#A07A4F" stroke-width="0.6" opacity="0.5"/>
+      <!-- YEAST -->
+      <div class="ing-tile yeast">
+        <div class="ing-icon-circle">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <!-- yeast block (cube) -->
+            <path d="M7 10 l9-4 9 4 v12 l-9 4 -9-4z" fill="#D4A86A"/>
+            <path d="M7 10 l9 4 9-4" fill="none" stroke="#8B5A2B" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M16 14 v12" stroke="#8B5A2B" stroke-width="1.2"/>
+            <path d="M7 10 l9-4 9 4 v12 l-9 4 -9-4z" fill="none" stroke="#8B5A2B" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div>
-          <span class="ing-name" data-i18n="ing.yeast">Yeast</span>
-          <span class="ing-pct" id="totYeastPct">0.3% (IDY)</span>
-        </div>
-        <div class="ing-amt"><span id="totYeast">4.5</span><span class="u">g</span></div>
+        <div class="ing-tile-name" data-i18n="ing.yeast">Yeast</div>
+        <div class="ing-tile-amt"><span id="totYeast">4.5</span><span class="u">g</span></div>
       </div>
+    </div>
+
+    <!-- Hidden percentage spans (kept so render() still has targets) -->
+    <span class="hidden" id="totWaterPct">65%</span>
+    <span class="hidden" id="totSaltPct">2.8%</span>
+    <span class="hidden" id="totYeastPct">0.3% (IDY)</span>
+
+    <!-- Hydration footer + Adjust Recipe -->
+    <div class="ing-foot">
+      <div class="ing-foot-info">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2 a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 5 a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zm-1.5 5 h2 v6 h-2z"/>
+        </svg>
+        <span><span data-i18n="foot.basedOn">Based on</span> <span id="footHyd">65</span>% <span data-i18n="foot.hydration">hydration</span></span>
+      </div>
+      <button class="adjust-pill" id="adjustBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        <span data-i18n="foot.adjust">Adjust Recipe</span>
+      </button>
     </div>
   </section>
 
@@ -911,13 +1312,6 @@
         <div><span class="ing-name" data-i18n="ing.salt">Salt</span></div>
         <div class="ing-amt"><span id="fdSalt">42</span><span class="u">g</span></div>
       </div>
-      <div class="ingredient">
-        <div class="ing-icon" style="background:#F1E2C5;">
-          <svg viewBox="0 0 32 32"><rect x="7" y="9" width="18" height="14" rx="2" fill="#D4A86A"/></svg>
-        </div>
-        <div><span class="ing-name" data-i18n="ing.yeast">Yeast</span></div>
-        <div class="ing-amt"><span id="fdYeast">4</span><span class="u">g</span></div>
-      </div>
     </div>
   </section>
 
@@ -940,12 +1334,13 @@
 
 </div>
 
-<!-- ============ SETTINGS MODAL ============ -->
+
+<!-- ============ APP SETTINGS MODAL (gear icon) ============ -->
 <div class="modal-back" id="modalBack"></div>
 <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <div class="modal-grip"></div>
-  <h2 id="settingsTitle" data-i18n="settings.title">Recipe settings</h2>
-  <p data-i18n="settings.lead">Tweak the defaults that fit your style and oven.</p>
+  <h2 id="settingsTitle" data-i18n="settings.title">App settings</h2>
+  <p data-i18n="settings.lead">Choose your language and reset preferences.</p>
 
   <div class="field">
     <div class="field-label"><span data-i18n="settings.language">Language</span></div>
@@ -956,6 +1351,25 @@
   </div>
 
   <div class="field">
+    <div class="field-label"><span data-i18n="settings.theme">Theme</span></div>
+    <select id="theme" class="input-line">
+      <option value="system" data-i18n="theme.system">System (auto)</option>
+      <option value="light"  data-i18n="theme.light">Light</option>
+      <option value="dark"   data-i18n="theme.dark">Dark</option>
+    </select>
+  </div>
+
+  <button class="modal-close" id="closeSettings" data-i18n="settings.done">Done</button>
+</div>
+
+<!-- ============ RECIPE SETTINGS MODAL (Adjust Recipe pill) ============ -->
+<div class="modal-back" id="recipeModalBack"></div>
+<div class="modal" id="recipeModal" role="dialog" aria-modal="true" aria-labelledby="recipeTitle">
+  <div class="modal-grip"></div>
+  <h2 id="recipeTitle" data-i18n="recipe.title">Recipe settings</h2>
+  <p data-i18n="recipe.lead">Tweak the dough recipe to fit your style and oven.</p>
+
+  <div class="field">
     <div class="field-label"><span data-i18n="settings.hydration">Hydration</span> <span class="v"><span id="hydrationVal">65</span>%</span></div>
     <input type="range" min="55" max="85" step="1" value="65" id="hydration" class="slider" />
     <p class="note" data-i18n="note.hydration">60–65% standard Neapolitan, 70%+ for wetter, more open crumb.</p>
@@ -964,6 +1378,7 @@
   <div class="field">
     <div class="field-label"><span data-i18n="settings.salt">Salt</span> <span class="v"><span id="saltPctVal">2.8</span>%</span></div>
     <input type="range" min="1.5" max="4" step="0.1" value="2.8" id="saltPct" class="slider" />
+    <p class="note" data-i18n="note.salt">Default 2.8% — adjust for your liking.</p>
   </div>
 
   <div class="field">
@@ -988,7 +1403,7 @@
     </svg>
     <span data-i18n="settings.reset">Reset to defaults</span>
   </button>
-  <button class="modal-close" id="closeSettings" data-i18n="settings.done">Done</button>
+  <button class="modal-close" id="closeRecipe" data-i18n="settings.done">Done</button>
 </div>
 
 <!-- ============ SAVE RECIPE MODAL ============ -->
@@ -1023,6 +1438,7 @@ const DEFAULTS = {
   yeastPct: 0.3,
   yeastType: 'idy',
   language: 'en',
+  theme: 'system',  // 'system' | 'light' | 'dark'
 };
 const state = { ...DEFAULTS };
 // Biga hydration is fixed (classic ~45%) — no UI, no state.
@@ -1042,7 +1458,12 @@ const i18n = {
     'intro.poolish': 'Poolish: a wet French pre-ferment — open, airy crumb.',
     'card.pizzas': 'Number of Pizzas',
     'card.weight': 'Dough Ball Weight',
-    'card.totals': 'Total Ingredients',
+    'card.totals': 'Ingredients Needed',
+    'header.tag': 'Calculate your dough ingredients & pizzas',
+    'card.pizzasSub': 'Total dough balls: {0}',
+    'foot.basedOn': 'Based on', 'foot.hydration': 'hydration',
+    'foot.adjust': 'Adjust Recipe',
+    'cta.label': 'You will make', 'cta.pizzas': 'PIZZAS',
     'ing.flour': 'Flour', 'ing.water': 'Water', 'ing.salt': 'Salt', 'ing.yeast': 'Yeast',
     'sec.preferment': 'Day 1 — Pre-ferment',
     'sec.final':      'Day 2–4 — Final dough mix',
@@ -1053,6 +1474,7 @@ const i18n = {
     'note.bigaRange':    'Classic biga uses 50–100% of total flour. Higher = more flavour, longer rise.',
     'note.poolishRange': 'Classic poolish uses 20–40% of total flour. Higher = more open crumb.',
     'note.hydration':    '60–65% standard Neapolitan, 70%+ for wetter, more open crumb.',
+    'note.salt':         'Default 2.8% — adjust for your liking.',
     'note.yeast':        '~0.1% for long cold ferments, ~0.3% same-day, ~1% for fast 2–4 h proofs.',
     'pct.flour':     '% OF FLOUR',
     'pct.ofTotal':   '{0}% of total',
@@ -1061,8 +1483,14 @@ const i18n = {
     'preset.empty':      'No saved presets yet. Tap below to save the current settings.',
     'preset.load':       'Load',
     'preset.confirmDel': 'Sure?',
-    'settings.title':      'Recipe settings',
-    'settings.lead':       'Tweak the defaults that fit your style and oven.',
+    'settings.title':      'App settings',
+    'settings.lead':       'Choose your language, theme and reset preferences.',
+    'settings.theme':      'Theme',
+    'theme.system':        'System (auto)',
+    'theme.light':         'Light',
+    'theme.dark':          'Dark',
+    'recipe.title':        'Recipe settings',
+    'recipe.lead':         'Tweak the dough recipe to fit your style and oven.',
     'settings.language':   'Language',
     'settings.hydration':  'Hydration',
     'settings.salt':       'Salt',
@@ -1101,7 +1529,12 @@ const i18n = {
     'intro.poolish': 'Poolish: en våd fransk forforgæring — åben, luftig krumme.',
     'card.pizzas': 'Antal pizzaer',
     'card.weight': 'Vægt pr. dejkugle',
-    'card.totals': 'Samlede ingredienser',
+    'card.totals': 'Ingredienser',
+    'header.tag': 'Beregn ingredienser og antal pizzaer',
+    'card.pizzasSub': 'Dejkugler i alt: {0}',
+    'foot.basedOn': 'Baseret på', 'foot.hydration': 'hydrering',
+    'foot.adjust': 'Juster opskrift',
+    'cta.label': 'Du laver', 'cta.pizzas': 'PIZZAER',
     'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
     'sec.preferment': 'Dag 1 — Forforgæring',
     'sec.final':      'Dag 2–4 — Endelig dej',
@@ -1112,6 +1545,7 @@ const i18n = {
     'note.bigaRange':    'Klassisk biga bruger 50–100% af det samlede mel. Højere = mere smag, længere hævning.',
     'note.poolishRange': 'Klassisk poolish bruger 20–40% af det samlede mel. Højere = mere åben krumme.',
     'note.hydration':    '60–65% standard napolitansk, 70%+ for vådere, mere åben krumme.',
+    'note.salt':         'Standard 2,8% — juster efter smag.',
     'note.yeast':        '~0,1% til lange kolde forgæringer, ~0,3% samme dag, ~1% til hurtige 2–4 t hævninger.',
     'pct.flour':     '% AF MEL',
     'pct.ofTotal':   '{0}% af total',
@@ -1120,14 +1554,20 @@ const i18n = {
     'preset.empty':      'Ingen gemte forindstillinger endnu. Tryk nedenfor for at gemme.',
     'preset.load':       'Indlæs',
     'preset.confirmDel': 'Sikker?',
-    'settings.title':      'Indstillinger',
-    'settings.lead':       'Juster standarderne, der passer til din stil og ovn.',
+    'settings.title':      'App-indstillinger',
+    'settings.lead':       'Vælg sprog, tema og nulstil præferencer.',
+    'settings.theme':      'Tema',
+    'theme.system':        'System (auto)',
+    'theme.light':         'Lys',
+    'theme.dark':          'Mørk',
+    'recipe.title':        'Opskriftsindstillinger',
+    'recipe.lead':         'Juster dejopskriften, så den passer til din stil og ovn.',
     'settings.language':   'Sprog',
     'settings.hydration':  'Hydrering',
     'settings.salt':       'Salt',
-    'settings.yeast':      'Gær (instant tør)',
+    'settings.yeast':      'Gær',
     'settings.yeastType':  'Gærtype',
-    'settings.yeastIdy':   'Instant tørgær (IDY)',
+    'settings.yeastIdy':   'Tørgær (IDY)',
     'settings.yeastAdy':   'Aktiv tørgær (ADY) — ×1,25',
     'settings.yeastFresh': 'Frisk gær — ×3',
     'settings.reset':      'Nulstil til standard',
@@ -1155,6 +1595,26 @@ function t(key, ...args) {
   args.forEach((a, i) => { s = s.split('{' + i + '}').join(a); });
   return s;
 }
+// --------- Theme (light / dark / system) ---------
+function applyTheme() {
+  const mode = state.theme || 'system';
+  let actual = mode;
+  if (mode === 'system') {
+    actual = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', actual);
+  // keep mobile browser chrome in sync
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', actual === 'dark' ? '#14110D' : '#F5611D');
+}
+// React to OS color-scheme changes when "System" is active
+if (window.matchMedia) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const onChange = () => { if ((state.theme || 'system') === 'system') applyTheme(); };
+  if (mq.addEventListener) mq.addEventListener('change', onChange);
+  else if (mq.addListener) mq.addListener(onChange);
+}
+
 function applyLanguage() {
   // text content
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1186,7 +1646,7 @@ function setAmt(id, val) {
   const el = $(id);
   if (!el || el.textContent === String(val)) return;
   el.textContent = val;
-  const wrap = el.closest('.ing-amt');
+  const wrap = el.closest('.ing-amt') || el.closest('.ing-tile-amt');
   if (wrap) {
     wrap.classList.remove('flash');
     void wrap.offsetWidth; // restart anim
@@ -1219,12 +1679,8 @@ function calculate() {
     const pfHyd = state.method === 'biga' ? BIGA_HYDRATION : POOLISH_HYD;
     const pfFlour = totalFlour * state.prefermentPct / 100;
     const pfWater = pfFlour * pfHyd / 100;
-    // pre-ferment yeast: a small fraction of total yeast
-    // poolish: very small (long fermentation), biga: ~1% of biga flour
-    const pfYeast = state.method === 'biga'
-      ? Math.min(totalYeast * 0.5, pfFlour * 0.01) // up to half the total yeast or 1% of pf flour
-      : Math.min(totalYeast * 0.4, pfFlour * 0.005);
-
+    // All yeast goes into the pre-ferment so it has time to do its work.
+    const pfYeast = totalYeast;
     const fdFlour = totalFlour - pfFlour;
     const fdWater = totalWater - pfWater;
     const fdSalt  = totalSalt;
@@ -1266,6 +1722,11 @@ function render() {
   $('totSaltPct').textContent  = state.saltPct.toFixed(1) + '%';
   const yeastTypeLbl = t('yeast.' + state.yeastType);
   $('totYeastPct').textContent = `${(r.yPct).toFixed(2)}% (${yeastTypeLbl})`;
+
+  // Footer "Based on X% hydration" + CTA + pizza sub-counter
+  if ($('footHyd')) $('footHyd').textContent = state.hydration;
+  if ($('ctaPizzaCount')) $('ctaPizzaCount').textContent = state.pizzas;
+  if ($('pizzaCountSub')) $('pizzaCountSub').textContent = t('card.pizzasSub', state.pizzas);
 
   // Pre-ferment cards
   const isPF = state.method !== 'direct';
@@ -1418,6 +1879,11 @@ function bindInputs() {
     render();          // re-render dynamic strings (intro, notes, yeast label)
     localStorage.setItem('pizzaTool:lastState', JSON.stringify(state));
   });
+  $('theme').addEventListener('change', e => {
+    state.theme = e.target.value;
+    applyTheme();
+    localStorage.setItem('pizzaTool:lastState', JSON.stringify(state));
+  });
 
   // Stepper
   $('pizzaPlus').addEventListener('click', () => { if (state.pizzas < 30) { state.pizzas++; render(); }});
@@ -1445,17 +1911,25 @@ function bindInputs() {
     });
   });
 
-  // Settings modal
+  // App settings modal (gear icon — language + reset)
   $('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
   $('closeSettings').addEventListener('click', () => closeModal('settingsModal'));
   $('modalBack').addEventListener('click', () => closeModal('settingsModal'));
 
+  // Recipe settings modal (Adjust Recipe pill — hydration, salt, yeast, yeast type)
+  const adjustBtn = $('adjustBtn');
+  if (adjustBtn) adjustBtn.addEventListener('click', () => openModal('recipeModal'));
+  $('closeRecipe').addEventListener('click', () => closeModal('recipeModal'));
+  $('recipeModalBack').addEventListener('click', () => closeModal('recipeModal'));
+
   // Reset to defaults — restores every field in the settings modal (and method/pizzas/ball/preferment too)
-  // Language is a UI preference, so it's preserved across resets.
+  // Language and theme are UI preferences, so they're preserved across resets.
   $('resetSettings').addEventListener('click', () => {
     const currentLang = state.language;
+    const currentTheme = state.theme;
     Object.assign(state, DEFAULTS);
     state.language = currentLang;
+    state.theme = currentTheme;
     // sync DOM controls
     $('hydration').value     = state.hydration;
     $('saltPct').value       = state.saltPct;
@@ -1485,11 +1959,13 @@ function openModal(id) {
   $(id).classList.add('open');
   // back overlay
   if (id === 'settingsModal') $('modalBack').classList.add('open');
-  if (id === 'saveModal') $('saveModalBack').classList.add('open');
+  if (id === 'recipeModal')   $('recipeModalBack').classList.add('open');
+  if (id === 'saveModal')     $('saveModalBack').classList.add('open');
 }
 function closeModal(id) {
   $(id).classList.remove('open');
   $('modalBack').classList.remove('open');
+  $('recipeModalBack').classList.remove('open');
   $('saveModalBack').classList.remove('open');
 }
 
@@ -1536,8 +2012,10 @@ function loadRecipe(id) {
   const r = list.find(x => x.id === id);
   if (!r) return;
   const currentLang = state.language;
+  const currentTheme = state.theme;
   Object.assign(state, r.state);
   state.language = currentLang; // language is a UI preference, not a preset value
+  state.theme = currentTheme;   // theme is a UI preference, not a preset value
   // sync slider DOM
   $('ballWeight').value = state.ballWeight;
   $('hydration').value  = state.hydration;
@@ -1545,6 +2023,8 @@ function loadRecipe(id) {
   $('saltPct').value    = state.saltPct;
   $('yeastPct').value   = state.yeastPct;
   $('yeastType').value  = state.yeastType;
+  if ($('theme')) $('theme').value = state.theme;
+  applyTheme();
   render();
   showToast(t('toast.loaded', r.name));
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1614,8 +2094,9 @@ function restoreLastState() {
     const s = JSON.parse(localStorage.getItem('pizzaTool:lastState'));
     if (s && typeof s === 'object') {
       Object.assign(state, s);
-      delete state.bigaHyd; // legacy field — biga hydration is now fixed
+      delete state.bigaHyd; // legacy field
       if (!state.language || !i18n[state.language]) state.language = 'en';
+      if (!state.theme || !['system','light','dark'].includes(state.theme)) state.theme = 'system';
       $('ballWeight').value = state.ballWeight;
       $('hydration').value  = state.hydration;
       $('prefermentPct').value = state.prefermentPct;
@@ -1623,6 +2104,7 @@ function restoreLastState() {
       $('yeastPct').value   = state.yeastPct;
       $('yeastType').value  = state.yeastType;
       $('language').value   = state.language;
+      $('theme').value      = state.theme;
     }
   } catch {}
 }
@@ -1630,6 +2112,7 @@ function restoreLastState() {
 // --------- Init ---------
 document.addEventListener('DOMContentLoaded', () => {
   restoreLastState();
+  applyTheme();
   applyLanguage();
   bindInputs();
   renderRecipes();
@@ -1637,6 +2120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Subtle shadow under the sticky header once the user scrolls
   const headerEl = document.querySelector('.header');
   const onScroll = () => {
+    if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 4);
     if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 4);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
