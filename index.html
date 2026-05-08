@@ -26,6 +26,17 @@
   /* ---------- Reset + base ---------- */
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  /* Overscroll / rubber-band colour at the top edge — matches the header */
+  /* Two-tone overscroll: orange band at the top edge, cream everywhere else.
+     On iOS rubber-band, the html background shows behind the body — pulling past
+     the top reveals the orange strip, pulling past the bottom reveals cream. */
+  html {
+    background-color: var(--bg);
+    background-image: linear-gradient(to bottom, var(--overscroll, #F5811F), var(--overscroll, #F5811F));
+    background-size: 100% 260px;
+    background-repeat: no-repeat;
+    background-position: top;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
     background: var(--bg);
@@ -100,6 +111,7 @@
     --surface-2: #FFF6EC;     /* recipe row alt */
     --slider-track: #F1E5D2;
     --modal-back: rgba(40, 30, 20, 0.45);
+    --overscroll: #F5811F;
   }
 
   /* ---------- Dark mode tokens ---------- */
@@ -129,6 +141,7 @@
     --surface-2: #1B1813;
     --slider-track: #3A3229;
     --modal-back: rgba(0, 0, 0, 0.65);
+    --overscroll: #B14F0F;
   }
   /* Header gradient gets a touch deeper in dark mode */
   :root[data-theme="dark"] .header {
