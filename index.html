@@ -223,11 +223,12 @@
   }
   .brand { display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0; }
   .brand-emoji {
-    width: 48px; height: 48px;
+    width: 58px; height: 58px;
     flex-shrink: 0;
     filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));
   }
-  .brand-emoji svg { width: 100%; height: 100%; }
+  .brand-emoji svg,
+  .brand-emoji img { width: 100%; height: 100%; display: block; }
   .brand-text { display: flex; flex-direction: column; line-height: 1; }
   .brand-title {
     font-size: 32px;
@@ -593,6 +594,14 @@
     color: var(--muted);
   }
   .ing-foot-info svg { width: 14px; height: 14px; color: var(--tile-water-ink); flex-shrink: 0; }
+  /* Total dough weight summary row — same style as .note, centered */
+  .total-dough-row {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.4;
+  }
   .adjust-pill {
     display: inline-flex;
     align-items: center;
@@ -852,6 +861,9 @@
     padding: 14px;
     background: var(--orange);
     color: #fff;
+    /* invisible border so the primary button has the same auto-height as the
+       .ghost variant, which carries a 2px solid border */
+    border: 2px solid transparent;
     border-radius: 14px;
     font-weight: 800;
     font-size: 14px;
@@ -871,6 +883,20 @@
   .modal-close.ghost:hover {
     background: var(--surface-1);
     color: var(--coral-dark);
+  }
+  /* Side-by-side modal buttons (e.g. Cancel + Save). Forces equal width and
+     resets the per-button vertical margins so flex stretching aligns heights. */
+  .modal-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    align-items: stretch;
+  }
+  .modal-row > .modal-close {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    margin: 0;
   }
 
   /* ---------- Recipe save modal ---------- */
@@ -893,8 +919,10 @@
     bottom: 32px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--ink);
-    color: #fff;
+    /* Fixed dark grey + white text — readable on both light and dark themes,
+       since the toast floats above the page on a high-contrast pill. */
+    background: #2A2A2A;
+    color: #FFFFFF;
     padding: 12px 20px;
     border-radius: 999px;
     font-size: 14px;
@@ -903,7 +931,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease, transform .25s ease;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
     white-space: nowrap;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -1059,14 +1087,16 @@
     display: grid; place-items: center;
     cursor: pointer;
     z-index: 3;
-    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
+    /* Match the face it's on so it gets hidden when rotated away.
+       Fixes a Mobile Safari quirk where absolutely-positioned children
+       of a backface-hidden parent still bleed through during the flip. */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    transition: transform .12s ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  .flip-btn:hover {
-    background: var(--mint);
-    border-color: var(--green);
-    color: var(--green-dark);
-  }
-  .flip-btn:active { transform: scale(0.92); }
+  .flip-btn:active { transform: translateZ(0) scale(0.92); }
   .flip-btn-back { font-size: 18px; }
 
   /* ---------- Device-tilt parallax ----------
@@ -1078,7 +1108,8 @@
     transition: transform .15s linear;
     will-change: transform;
   }
-  .brand-emoji svg {
+  .brand-emoji svg,
+  .brand-emoji img {
     transform:
       translate(calc(-0.6px * var(--motion-x)), calc(-0.35px * var(--motion-y)))
       rotate(calc(0.35deg * var(--motion-x)));
@@ -1089,7 +1120,8 @@
   /* Respect users who prefer reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .big-illustration svg,
-    .brand-emoji svg { transform: none !important; }
+    .brand-emoji svg,
+    .brand-emoji img { transform: none !important; }
   }
 </style>
 </head>
@@ -1101,36 +1133,7 @@
   <header class="header">
     <div class="brand">
       <div class="brand-emoji" aria-hidden="true">
-        <!-- pizza in a chef's circle — minimalist top-down logo mark -->
-        <svg viewBox="0 0 64 64">
-          <defs>
-            <radialGradient id="brandSauce" cx="40%" cy="35%" r="80%">
-              <stop offset="0%" stop-color="#F47A5C"/>
-              <stop offset="100%" stop-color="#D14328"/>
-            </radialGradient>
-          </defs>
-          <!-- white plate halo -->
-          <circle cx="32" cy="32" r="30" fill="#FFFFFF"/>
-          <!-- outer crust ring -->
-          <circle cx="32" cy="32" r="26" fill="#E8B26A"/>
-          <!-- inner crust shadow ring -->
-          <circle cx="32" cy="32" r="22" fill="none" stroke="#C68B43" stroke-width="1.6"/>
-          <!-- sauce field -->
-          <circle cx="32" cy="32" r="22" fill="url(#brandSauce)"/>
-          <!-- cheese melt blobs -->
-          <ellipse cx="22" cy="24" rx="4.5" ry="2.6" fill="#FFE39A" opacity="0.85"/>
-          <ellipse cx="42" cy="38" rx="4.5" ry="2.6" fill="#FFE39A" opacity="0.85"/>
-          <ellipse cx="36" cy="22" rx="2.4" ry="1.4" fill="#FFE39A" opacity="0.7"/>
-          <!-- pepperoni (3 nicely placed) -->
-          <circle cx="40" cy="24" r="3.6" fill="#B8261A"/>
-          <ellipse cx="39" cy="22.5" rx="1.4" ry="0.7" fill="#E45040" opacity="0.9"/>
-          <circle cx="22" cy="38" r="3.6" fill="#B8261A"/>
-          <ellipse cx="21" cy="36.5" rx="1.4" ry="0.7" fill="#E45040" opacity="0.9"/>
-          <circle cx="38" cy="42" r="3.2" fill="#B8261A"/>
-          <ellipse cx="37" cy="40.7" rx="1.2" ry="0.6" fill="#E45040" opacity="0.9"/>
-          <!-- single basil leaf -->
-          <ellipse cx="29" cy="34" rx="2.4" ry="1.2" fill="#5C8B3F" transform="rotate(-25 29 34)"/>
-        </svg>
+        <img src="logo.png" alt="" />
       </div>
       <div class="brand-text">
         <div class="brand-title">PIZZA<span class="brand-sub" data-i18n="header.tool">TOOL</span></div>
@@ -1349,6 +1352,11 @@
     <span class="hidden" id="totWaterPct">65%</span>
     <span class="hidden" id="totSaltPct">2.8%</span>
     <span class="hidden" id="totYeastPct">0.3% (IDY)</span>
+
+    <!-- Total dough weight summary -->
+    <div class="total-dough-row">
+      <span data-i18n="total.dough">Total dough weight:</span> <span id="totDough">1500</span> g
+    </div>
 
     <!-- Hydration footer + Adjust Recipe -->
     <div class="ing-foot">
@@ -1604,8 +1612,8 @@
   <h2 data-i18n="save.title">Save preset</h2>
   <p data-i18n="save.lead">Give this dough a name. Stored locally in your browser.</p>
   <input type="text" id="recipeName" class="input-line" data-i18n-placeholder="save.placeholder" placeholder="e.g. My Neapolitan 65%" maxlength="40" />
-  <div style="display:flex; gap:10px; margin-top:14px;">
-    <button class="modal-close" id="cancelSave" data-i18n="save.cancel" style="background:#fff; color:var(--ink); border:2px solid var(--line);">Cancel</button>
+  <div class="modal-row">
+    <button class="modal-close ghost" id="cancelSave" data-i18n="save.cancel">Cancel</button>
     <button class="modal-close" id="confirmSave" data-i18n="save.save">Save</button>
   </div>
 </div>
@@ -1654,6 +1662,7 @@ const i18n = {
     'card.pizzasSub': 'Total dough balls: {0}',
     'foot.basedOn': 'Based on', 'foot.hydration': 'hydration',
     'foot.adjust': 'Adjust Recipe',
+    'total.dough': 'Total dough weight:',
     'cta.label': 'You will make', 'cta.pizzas': 'PIZZAS',
     'ing.flour': 'Flour', 'ing.water': 'Water', 'ing.salt': 'Salt', 'ing.yeast': 'Yeast',
     'sec.preferment': 'Day 1 — Pre-ferment',
@@ -1725,6 +1734,7 @@ const i18n = {
     'card.pizzasSub': 'Dejkugler i alt: {0}',
     'foot.basedOn': 'Baseret på', 'foot.hydration': 'hydrering',
     'foot.adjust': 'Juster opskrift',
+    'total.dough': 'Samlet dejvægt:',
     'cta.label': 'Du laver', 'cta.pizzas': 'PIZZAER',
     'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
     'sec.preferment': 'Dag 1 — Fordej',
@@ -1915,6 +1925,7 @@ function render() {
   setSliderFill('yeastPct');
 
   // Total ingredients (with flash on change)
+  $('totDough').textContent = Math.round(r.totalDough);
   setAmt('totFlour', fmt(r.totalFlour));
   $('totFlourU').textContent = unitFor(r.totalFlour);
   setAmt('totWater', fmt(r.totalWater));
@@ -2124,20 +2135,21 @@ function bindInputs() {
   $('closeRecipe').addEventListener('click', () => closeModal('recipeModal'));
   $('recipeModalBack').addEventListener('click', () => closeModal('recipeModal'));
 
-  // Reset to defaults — restores every field in the settings modal (and method/pizzas/ball/preferment too)
-  // Language and theme are UI preferences, so they're preserved across resets.
+  // Reset to defaults — restores recipe-related fields (hydration, salt, yeast, preferment%, method).
+  // Language, theme, number of pizzas, and dough ball weight are user choices that persist across resets.
   $('resetSettings').addEventListener('click', () => {
-    const currentLang = state.language;
-    const currentTheme = state.theme;
-    Object.assign(state, DEFAULTS);
-    state.language = currentLang;
-    state.theme = currentTheme;
-    // sync DOM controls
+    const keep = {
+      language:   state.language,
+      theme:      state.theme,
+      pizzas:     state.pizzas,
+      ballWeight: state.ballWeight,
+    };
+    Object.assign(state, DEFAULTS, keep);
+    // sync DOM controls (only the ones being reset)
     $('hydration').value     = state.hydration;
     $('saltPct').value       = state.saltPct;
     $('yeastPct').value      = state.yeastPct;
     $('yeastType').value     = state.yeastType;
-    $('ballWeight').value    = state.ballWeight;
     $('prefermentPct').value = state.prefermentPct;
     render();
     showToast(t('toast.reset'));
