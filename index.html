@@ -22,6 +22,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Pizza Tool" />
 <meta name="application-name" content="Pizza Tool" />
+
+<!-- Righteous (Google Font) for the PIZZATOOL header brand -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous&display=swap">
+
 <style>
   /* ---------- Reset + base ---------- */
   *, *::before, *::after { box-sizing: border-box; }
@@ -231,8 +237,9 @@
   .brand-emoji img { width: 100%; height: 100%; display: block; }
   .brand-text { display: flex; flex-direction: column; line-height: 1; }
   .brand-title {
-    font-size: 32px;
-    font-weight: 900;
+    font-family: 'Righteous', system-ui, sans-serif;
+    font-size: 34px;
+    font-weight: 400; /* Righteous only ships at 400 */
     letter-spacing: 1px;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.12);
@@ -240,6 +247,7 @@
   }
   .brand-sub {
     /* "TOOL" sits inline with PIZZA on a single line */
+    font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
     color: #FFD58A;
@@ -1087,17 +1095,20 @@
     display: grid; place-items: center;
     cursor: pointer;
     z-index: 3;
-    /* Match the face it's on so it gets hidden when rotated away.
-       Fixes a Mobile Safari quirk where absolutely-positioned children
-       of a backface-hidden parent still bleed through during the flip. */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    transition: transform .12s ease;
+    transition: opacity .2s ease, transform .12s ease;
     -webkit-tap-highlight-color: transparent;
   }
-  .flip-btn:active { transform: translateZ(0) scale(0.92); }
+  .flip-btn:active { transform: scale(0.92); }
   .flip-btn-back { font-size: 18px; }
+  /* Explicitly hide the off-side flip button. backface-visibility alone is
+     unreliable for absolutely-positioned children on Mobile Safari, so we
+     drive visibility off the .flipped class on the card itself. */
+  .card.flippable:not(.flipped) .card-face-back  .flip-btn,
+  .card.flippable.flipped         .card-face-front .flip-btn {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 
   /* ---------- Device-tilt parallax ----------
      Two layers move at different magnitudes (and the brand emoji opposite-direction)
@@ -1284,11 +1295,17 @@
       <div class="ing-tile flour">
         <div class="ing-icon-circle">
           <svg viewBox="0 0 32 32" aria-hidden="true">
-            <!-- flour bowl with sparkle -->
-            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
-            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
-            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
-            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
+            <!-- flour sack -->
+            <!-- bag body -->
+            <path d="M8 11 L8 27 Q8 28.5 9.5 28.5 L22.5 28.5 Q24 28.5 24 27 L24 11 Z" fill="#FFF8E8" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <!-- pleated/folded top -->
+            <path d="M7 6 L25 6 L25 9 L24 11 L8 11 L7 9 Z" fill="#E8AC68" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <!-- pleat creases -->
+            <line x1="12" y1="6" x2="12" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <line x1="20" y1="6" x2="20" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <!-- "00" pizza-flour mark on the front -->
+            <circle cx="13" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
+            <circle cx="19" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
           </svg>
         </div>
         <div class="ing-tile-name" data-i18n="ing.flour">Flour</div>
@@ -1389,10 +1406,13 @@
       <div class="ingredient">
         <div class="ing-icon" style="background: var(--tile-flour);">
           <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
-            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
-            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
-            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
+            <!-- flour sack -->
+            <path d="M8 11 L8 27 Q8 28.5 9.5 28.5 L22.5 28.5 Q24 28.5 24 27 L24 11 Z" fill="#FFF8E8" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M7 6 L25 6 L25 9 L24 11 L8 11 L7 9 Z" fill="#E8AC68" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <line x1="12" y1="6" x2="12" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <line x1="20" y1="6" x2="20" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <circle cx="13" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
+            <circle cx="19" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
           </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.flour">Flour</span><span class="ing-pct" id="pfFlourPct">30% of total</span></div>
@@ -1466,10 +1486,13 @@
       <div class="ingredient">
         <div class="ing-icon" style="background: var(--tile-flour);">
           <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M5 20 Q16 17 27 20 L25 26 Q16 28 7 26 Z" fill="#E8AC68"/>
-            <path d="M6 20 Q16 15 26 20" fill="#FFF8E8"/>
-            <ellipse cx="16" cy="19" rx="9" ry="2.2" fill="#FFFDF4"/>
-            <path d="M22 8 l1.4 2.4 2.6 0.4 -1.9 1.9 0.5 2.6 -2.6-1.4 -2.6 1.4 0.5-2.6 -1.9-1.9 2.6-0.4z" fill="#F5C842"/>
+            <!-- flour sack -->
+            <path d="M8 11 L8 27 Q8 28.5 9.5 28.5 L22.5 28.5 Q24 28.5 24 27 L24 11 Z" fill="#FFF8E8" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M7 6 L25 6 L25 9 L24 11 L8 11 L7 9 Z" fill="#E8AC68" stroke="#A86B2C" stroke-width="1.4" stroke-linejoin="round"/>
+            <line x1="12" y1="6" x2="12" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <line x1="20" y1="6" x2="20" y2="11" stroke="#A86B2C" stroke-width="0.5" opacity="0.55"/>
+            <circle cx="13" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
+            <circle cx="19" cy="20" r="1.8" fill="none" stroke="#A86B2C" stroke-width="1.5"/>
           </svg>
         </div>
         <div><span class="ing-name" data-i18n="ing.flour">Flour</span></div>
@@ -1719,7 +1742,7 @@ const i18n = {
   },
   da: {
     'header.tool': 'TOOL',
-    'tab.poolish': 'Poolish',           'tab.poolishSub': 'FLYDENDE FORDEJ',
+    'tab.poolish': 'Poolish',           'tab.poolishSub': 'VÅD FORDEJ',
     'tab.biga':    'Biga',              'tab.bigaSub':    'TØR FORDEJ',
     'tab.direct':  'Direkte',           'tab.directSub':  'SAMME DAG',
     'intro.title': 'DEJBEREGNER',
@@ -2354,6 +2377,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // so on iOS we attach a one-shot tap listener that requests permission.
   // Honors prefers-reduced-motion.
   (function setupMotion() {
+    return; // gyro motion disabled
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     let smoothX = 0, smoothY = 0;
