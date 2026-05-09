@@ -1007,7 +1007,7 @@
      for a subtle parallax / tactile feel. Driven by --motion-x and --motion-y
      CSS variables that JS updates from deviceorientation events. */
   .big-illustration svg {
-    transform: translate(calc(0.6px * var(--motion-x)), calc(0.6px * var(--motion-y)));
+    transform: translate(calc(15px + 0.6px * var(--motion-x)), calc(0.6px * var(--motion-y)));
     transition: transform .15s linear;
     will-change: transform;
   }
