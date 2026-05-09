@@ -1002,6 +1002,73 @@
   }
   .ing-tile-amt.flash { animation: amtFlash .4s ease; }
 
+  /* ---------- Flippable card (Day 1 / Day 2 with help backside) ---------- */
+  .card.flippable {
+    /* the .card outer becomes a 3D viewport — strip the visual styling
+       since the front/back faces handle their own backgrounds */
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    perspective: 1400px;
+  }
+  .card-flipper {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card.flippable.flipped .card-flipper {
+    transform: rotateY(180deg);
+  }
+  .card-face {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .card-face-front {
+    position: relative;
+  }
+  .card-face-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    min-height: 100%;
+    /* placeholder height so the flip has something to show before instructions exist */
+    min-height: 200px;
+  }
+  /* Disable interaction with the hidden face during/after flip */
+  .card.flippable:not(.flipped) .card-face-back { pointer-events: none; }
+  .card.flippable.flipped         .card-face-front { pointer-events: none; }
+
+  /* The little ? / × button on each face */
+  .flip-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px; height: 28px;
+    background: transparent;
+    border: 1.5px solid var(--muted-2);
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--muted);
+    display: grid; place-items: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .flip-btn:hover {
+    background: var(--mint);
+    border-color: var(--green);
+    color: var(--green-dark);
+  }
+  .flip-btn:active { transform: scale(0.92); }
+  .flip-btn-back { font-size: 18px; }
+
   /* ---------- Device-tilt parallax ----------
      Two layers move at different magnitudes (and the brand emoji opposite-direction)
      for a subtle parallax / tactile feel. Driven by --motion-x and --motion-y
@@ -1121,7 +1188,6 @@
       <div class="step-value" id="pizzaCount">6</div>
       <button class="step-btn" id="pizzaPlus" data-i18n-aria="aria.plus" aria-label="One more pizza"><span class="step-glyph">+</span></button>
     </div>
-    <div class="stepper-sub" id="pizzaCountSub">Total dough balls: 6</div>
 
     <!-- Divider -->
     <hr class="card-divider" aria-hidden="true" />
@@ -1303,7 +1369,10 @@
   </section>
 
   <!-- ============ PRE-FERMENT BREAKDOWN ============ -->
-  <section class="card hidden" id="pfBreakdownCard">
+  <section class="card flippable hidden" id="pfBreakdownCard">
+    <div class="card-flipper">
+    <div class="card-face card-face-front">
+    <button class="flip-btn" type="button" aria-label="Show instructions">?</button>
     <div class="card-header">
       <div class="card-label"><span data-i18n="sec.preferment">Day 1 — Pre-ferment</span> <span id="pfBreakdownMethod">(Biga)</span></div>
     </div>
@@ -1368,10 +1437,19 @@
         </div>
       </div>
     </div>
+    </div><!-- /card-face-front -->
+    <div class="card-face card-face-back">
+      <button class="flip-btn flip-btn-back" type="button" aria-label="Back to ingredients">×</button>
+      <!-- TODO: instructions for Day 1 — Pre-ferment -->
+    </div>
+    </div><!-- /card-flipper -->
   </section>
 
   <!-- ============ FINAL DOUGH BREAKDOWN ============ -->
-  <section class="card hidden" id="finalCard">
+  <section class="card flippable hidden" id="finalCard">
+    <div class="card-flipper">
+    <div class="card-face card-face-front">
+    <button class="flip-btn" type="button" aria-label="Show instructions">?</button>
     <div class="card-header">
       <div class="card-label" data-i18n="sec.final">Day 2–4 — Final dough mix</div>
     </div>
@@ -1418,6 +1496,12 @@
         <div class="ing-amt"><span id="fdSalt">42</span><span class="u">g</span></div>
       </div>
     </div>
+    </div><!-- /card-face-front -->
+    <div class="card-face card-face-back">
+      <button class="flip-btn flip-btn-back" type="button" aria-label="Back to ingredients">×</button>
+      <!-- TODO: instructions for Day 2–4 — Final dough mix -->
+    </div>
+    </div><!-- /card-flipper -->
   </section>
 
   <!-- ============ RECIPES ============ -->
@@ -1626,8 +1710,8 @@ const i18n = {
   },
   da: {
     'header.tool': 'TOOL',
-    'tab.poolish': 'Poolish',           'tab.poolishSub': 'FLYDENDE · 100%',
-    'tab.biga':    'Biga',              'tab.bigaSub':    'STIV · 45%',
+    'tab.poolish': 'Poolish',           'tab.poolishSub': 'FLYDENDE FORDEJ',
+    'tab.biga':    'Biga',              'tab.bigaSub':    'TØR FORDEJ',
     'tab.direct':  'Direkte',           'tab.directSub':  'SAMME DAG',
     'intro.title': 'DEJBEREGNER',
     'intro.text':  'Beregn ingredienser og pizzaer ud fra din dej.',
@@ -1643,12 +1727,12 @@ const i18n = {
     'foot.adjust': 'Juster opskrift',
     'cta.label': 'Du laver', 'cta.pizzas': 'PIZZAER',
     'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
-    'sec.preferment': 'Dag 1 — Forforgæring',
+    'sec.preferment': 'Dag 1 — Fordej',
     'sec.final':      'Dag 2–4 — Endelig dej',
     'sec.presets':    'Mine forindstillinger',
-    'note.bigaTime':    'Forgær 16–24 t ved 16–18 °C (eller 12–14 t ved stuetemp.).',
+    'note.bigaTime':    'Forgær 16–24 t ved 16–18 °C (eller 12–14 t ved stuetemp).',
     'note.poolishTime': 'Forgær 12–16 t ved stuetemp. indtil boblende og let hvælvet.',
-    'note.combine':     'Bland med den modne forforgæring.',
+    'note.combine':     'Bland de resterende ingredienser med fordejen og ælt gerne i 10-15 min i røremaskinen ved lav hastighed.',
     'note.bigaRange':    'Klassisk biga bruger 50–100% af det samlede mel. Højere = mere smag, længere hævning.',
     'note.poolishRange': 'Klassisk poolish bruger 20–40% af det samlede mel. Højere = mere åben krumme.',
     'note.hydration':    '60–65% standard napolitansk, 70%+ for vådere, mere åben krumme.',
@@ -2242,6 +2326,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  // ---------- Card flip (Day 1 / Day 2 ? button) ----------
+  document.querySelectorAll('.flippable .flip-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.flippable');
+      if (card) card.classList.toggle('flipped');
+    });
+  });
 
   // ---------- Device-tilt parallax (gyro / accelerometer) ----------
   // Drives --motion-x / --motion-y on :root, which the CSS picks up.
