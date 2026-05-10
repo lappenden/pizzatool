@@ -1050,13 +1050,25 @@
   .card-flipper {
     position: relative;
     width: 100%;
+    /* Wrapper height is driven by JS (--card-h), so it can smoothly transition
+       to whichever face is currently showing. Both faces are absolute-positioned
+       and measured at their natural height. */
+    height: var(--card-h, auto);
     transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* Add the height transition only after the first measurement, so the very
+     first paint snaps to the right size instead of growing from 0. */
+  .card.flippable.fit-ready .card-flipper {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card.flippable.flipped .card-flipper {
     transform: rotateY(180deg);
   }
   .card-face {
+    position: absolute;
+    top: 0; left: 0; right: 0;
     background: var(--card);
     border-radius: var(--radius-card);
     padding: 20px 22px;
@@ -1064,16 +1076,8 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }
-  .card-face-front {
-    position: relative;
-  }
   .card-face-back {
-    position: absolute;
-    inset: 0;
     transform: rotateY(180deg);
-    min-height: 100%;
-    /* placeholder height so the flip has something to show before instructions exist */
-    min-height: 200px;
   }
   /* Disable interaction with the hidden face during/after flip */
   .card.flippable:not(.flipped) .card-face-back { pointer-events: none; }
@@ -1100,6 +1104,66 @@
   }
   .flip-btn:active { transform: scale(0.92); }
   .flip-btn-back { font-size: 18px; }
+
+  /* Step-by-step guide rendered on the back of the flippable cards */
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 18px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    display: grid; place-items: center;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(245, 129, 31, 0.32);
+  }
+  .step-body { flex: 1; min-width: 0; }
+  .step-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  /* Tip callout shown at the bottom of a how-to guide — subtle, neutral */
+  .tip-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .tip-box svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--muted);
+    margin-top: 1px;
+  }
   /* Explicitly hide the off-side flip button. backface-visibility alone is
      unreliable for absolutely-positioned children on Mobile Safari, so we
      drive visibility off the .flipped class on the card itself. */
@@ -1148,7 +1212,7 @@
       </div>
       <div class="brand-text">
         <div class="brand-title">PIZZA<span class="brand-sub" data-i18n="header.tool">TOOL</span></div>
-        <div class="brand-tag" data-i18n="header.tag">Calculate your dough ingredients &amp; pizzas</div>
+        <div class="brand-tag" data-i18n="header.tag">Calculate your dough ingredients</div>
       </div>
     </div>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
@@ -1468,7 +1532,40 @@
     </div><!-- /card-face-front -->
     <div class="card-face card-face-back">
       <button class="flip-btn flip-btn-back" type="button" aria-label="Back to ingredients">×</button>
-      <!-- TODO: instructions for Day 1 — Pre-ferment -->
+      <div class="card-header">
+        <div class="card-label" data-i18n="day1.howto">Day 1 — How to</div>
+      </div>
+      <ol class="step-list">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day1.s1.title">Mix the pre-ferment</div>
+            <div class="step-desc"  data-i18n="day1.s1.desc">Whisk the flour, water, and yeast in a large bowl until just combined. No need to knead.</div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day1.s2.title">Cover and rest at room temp</div>
+            <div class="step-desc"  data-i18n="day1.s2.desc">Drape with plastic wrap or a damp cloth and let it sit warm for 1 hour.</div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day1.s3.title">Refrigerate overnight</div>
+            <div class="step-desc"  data-i18n="day1.s3.desc">Move to the fridge for 16–24 hours so flavor and gluten can develop slowly.</div>
+          </div>
+        </li>
+      </ol>
+      <div class="tip-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18h6"/>
+          <path d="M10 22h4"/>
+          <path d="M12 2a7 7 0 0 0-4 13c1 .9 2 2 2 3h4c0-1 1-2.1 2-3a7 7 0 0 0-4-13z"/>
+        </svg>
+        <div data-i18n="day1.tip">Keep in the fridge for up to 7 days.</div>
+      </div>
     </div>
     </div><!-- /card-flipper -->
   </section>
@@ -1530,7 +1627,39 @@
     </div><!-- /card-face-front -->
     <div class="card-face card-face-back">
       <button class="flip-btn flip-btn-back" type="button" aria-label="Back to ingredients">×</button>
-      <!-- TODO: instructions for Day 2–4 — Final dough mix -->
+      <div class="card-header">
+        <div class="card-label" data-i18n="day2.howto">Day 2–4 — How to</div>
+      </div>
+      <ol class="step-list">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day2.s1.title">Combine and mix</div>
+            <div class="step-desc"  data-i18n="day2.s1.desc">Add the matured pre-ferment to the remaining flour, water, and salt. Mix until shaggy.</div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day2.s2.title">Knead and develop</div>
+            <div class="step-desc"  data-i18n="day2.s2.desc">Knead by hand or stand mixer for 8–10 minutes until the dough is smooth and elastic.</div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day2.s3.title">Bulk rest with folds</div>
+            <div class="step-desc"  data-i18n="day2.s3.desc">Cover and rest at room temp for 2–3 hours, with stretch-and-folds every 30 minutes.</div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title" data-i18n="day2.s4.title">Divide and ball</div>
+            <div class="step-desc"  data-i18n="day2.s4.desc">Cut into portions, shape into tight balls, and proof 4–6 hours before baking.</div>
+          </div>
+        </li>
+      </ol>
     </div>
     </div><!-- /card-flipper -->
   </section>
@@ -1686,6 +1815,23 @@ const i18n = {
     'foot.basedOn': 'Based on', 'foot.hydration': 'hydration',
     'foot.adjust': 'Adjust Recipe',
     'total.dough': 'Total dough weight:',
+    'day1.howto':   'Day 1 — How to',
+    'day1.s1.title': 'Mix the pre-ferment',
+    'day1.s1.desc':  'Whisk the flour, water, and yeast in a large bowl until just combined. No need to knead.',
+    'day1.s2.title': 'Cover and rest at room temp',
+    'day1.s2.desc':  'Drape with plastic wrap or a damp cloth and let it sit warm for 1 hour.',
+    'day1.s3.title': 'Refrigerate overnight',
+    'day1.s3.desc':  'Move to the fridge for 16–24 hours so flavor and gluten can develop slowly.',
+    'day1.tip':      'TIP: Keep in the fridge for up to 7 days.',
+    'day2.howto':   'Day 2–4 — How to',
+    'day2.s1.title': 'Combine and mix',
+    'day2.s1.desc':  'Add the matured pre-ferment to the remaining flour, water, and salt. Mix until shaggy.',
+    'day2.s2.title': 'Knead and develop',
+    'day2.s2.desc':  'Knead by hand or stand mixer for 8–10 minutes until the dough is smooth and elastic.',
+    'day2.s3.title': 'Bulk rest with folds',
+    'day2.s3.desc':  'Cover and rest at room temp for 2–3 hours, with stretch-and-folds every 30 minutes.',
+    'day2.s4.title': 'Divide and ball',
+    'day2.s4.desc':  'Cut into portions, shape into tight balls, and proof 4–6 hours before baking.',
     'cta.label': 'You will make', 'cta.pizzas': 'PIZZAS',
     'ing.flour': 'Flour', 'ing.water': 'Water', 'ing.salt': 'Salt', 'ing.yeast': 'Yeast',
     'sec.preferment': 'Day 1 — Pre-ferment',
@@ -1758,6 +1904,23 @@ const i18n = {
     'foot.basedOn': 'Baseret på', 'foot.hydration': 'hydrering',
     'foot.adjust': 'Juster opskrift',
     'total.dough': 'Samlet dejvægt:',
+    'day1.howto':   'Dag 1 — Sådan gør du',
+    'day1.s1.title': 'Bland forforgæringen',
+    'day1.s1.desc':  'Pisk mel, vand og gær sammen i en stor skål, indtil det lige akkurat er blandet. Behøver ikke æltes.',
+    'day1.s2.title': 'Dæk til og lad hvile ved stuetemperatur',
+    'day1.s2.desc':  'Dæk med husholdningsfilm eller et fugtigt viskestykke, og lad stå lunt i 1 time.',
+    'day1.s3.title': 'Sæt på køl natten over',
+    'day1.s3.desc':  'Stil i køleskabet i 16–24 timer, så smag og gluten kan udvikle sig langsomt.',
+    'day1.tip':      'TIP: Kan fint opbevares i køleskabet i op til 7 dage.',
+    'day2.howto':   'Dag 2–4 — Sådan gør du',
+    'day2.s1.title': 'Bland sammen',
+    'day2.s1.desc':  'Tilføj den modne forforgæring til resten af mel, vand og salt. Rør indtil dejen lige hænger sammen.',
+    'day2.s2.title': 'Ælt og udvikl gluten',
+    'day2.s2.desc':  'Ælt i hånden eller med røremaskine i 8–10 minutter, indtil dejen er smidig og elastisk.',
+    'day2.s3.title': 'Lad dejen hvile',
+    'day2.s3.desc':  'Dæk til og lad hvile ved stuetemperatur i 2–3 timer, med stræk-og-fold hver halve time.',
+    'day2.s4.title': 'Del og form til kugler',
+    'day2.s4.desc':  'Skær i portioner, form til stramme dejkugler, og lad efterhæve i 4–6 timer før bagning.',
     'cta.label': 'Du laver', 'cta.pizzas': 'PIZZAER',
     'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
     'sec.preferment': 'Dag 1 — Fordej',
@@ -2030,6 +2193,10 @@ function render() {
 
   // Persist last state
   localStorage.setItem('pizzaTool:lastState', JSON.stringify(state));
+
+  // Re-fit any flippable cards whose visibility or content may have changed.
+  // Wait one frame so the DOM has applied the .hidden / text changes first.
+  if (window._fitAllFlipCards) requestAnimationFrame(window._fitAllFlipCards);
 }
 
 function highlightTicks(containerId, value) {
@@ -2363,11 +2530,38 @@ document.addEventListener('DOMContentLoaded', () => {
   onScroll();
 
   // ---------- Card flip (Day 1 / Day 2 ? button) ----------
+  // Sets --card-h on the card so the flipper height transitions to fit the
+  // currently-shown face. Animation timing matches the rotate transition.
+  const fitFlipCard = (card) => {
+    if (!card || card.classList.contains('hidden')) return;
+    const front = card.querySelector('.card-face-front');
+    const back  = card.querySelector('.card-face-back');
+    if (!front || !back) return;
+    const target = card.classList.contains('flipped') ? back : front;
+    card.style.setProperty('--card-h', target.scrollHeight + 'px');
+  };
+  const fitAllFlipCards = () => document.querySelectorAll('.flippable').forEach(fitFlipCard);
+  // Expose for the render() pipeline to call after DOM updates
+  window._fitAllFlipCards = fitAllFlipCards;
+
   document.querySelectorAll('.flippable .flip-btn').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const card = btn.closest('.flippable');
-      if (card) card.classList.toggle('flipped');
+      if (!card) return;
+      card.classList.toggle('flipped');
+      fitFlipCard(card);
+    });
+  });
+
+  // Initial sizing — wait one frame so layout has settled, then fit any
+  // currently-visible flippable cards. Hidden ones get sized on method change.
+  // After the first measurement, mark the card ".fit-ready" so subsequent
+  // height changes animate (the very first set should snap, not grow from 0).
+  requestAnimationFrame(() => {
+    fitAllFlipCards();
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.flippable').forEach(c => c.classList.add('fit-ready'));
     });
   });
 
