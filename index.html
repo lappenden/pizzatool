@@ -998,7 +998,8 @@
   .adjust-body {
     overflow: hidden;
     max-height: 0;
-    transition: max-height .25s ease;
+    /* No max-height transition here — the parent .card-flipper transitions its
+       overall height (driven by --card-h in JS) which provides the smooth open/close. */
   }
   .adjust-body.open { max-height: 240px; }
   .adjust-body-inner { padding-top: 8px; }
@@ -1660,6 +1661,14 @@
           </div>
         </li>
       </ol>
+      <div class="tip-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18h6"/>
+          <path d="M10 22h4"/>
+          <path d="M12 2a7 7 0 0 0-4 13c1 .9 2 2 2 3h4c0-1 1-2.1 2-3a7 7 0 0 0-4-13z"/>
+        </svg>
+        <div data-i18n="day2.tip">Let dough balls warm to room temp 1 hour before stretching.</div>
+      </div>
     </div>
     </div><!-- /card-flipper -->
   </section>
@@ -1832,6 +1841,7 @@ const i18n = {
     'day2.s3.desc':  'Cover and rest at room temp for 2–3 hours, with stretch-and-folds every 30 minutes.',
     'day2.s4.title': 'Divide and ball',
     'day2.s4.desc':  'Cut into portions, shape into tight balls, and proof 4–6 hours before baking.',
+    'day2.tip':      'Let dough balls warm to room temp 1 hour before stretching.',
     'cta.label': 'You will make', 'cta.pizzas': 'PIZZAS',
     'ing.flour': 'Flour', 'ing.water': 'Water', 'ing.salt': 'Salt', 'ing.yeast': 'Yeast',
     'sec.preferment': 'Day 1 — Pre-ferment',
@@ -1921,6 +1931,7 @@ const i18n = {
     'day2.s3.desc':  'Dæk til og lad hvile ved stuetemperatur i 2–3 timer, med stræk-og-fold hver halve time.',
     'day2.s4.title': 'Del og form til kugler',
     'day2.s4.desc':  'Skær i portioner, form til stramme dejkugler, og lad efterhæve i 4–6 timer før bagning.',
+    'day2.tip':      'Lad dejkuglerne komme til stuetemperatur 1 time før udstrækning.',
     'cta.label': 'Du laver', 'cta.pizzas': 'PIZZAER',
     'ing.flour': 'Mel', 'ing.water': 'Vand', 'ing.salt': 'Salt', 'ing.yeast': 'Gær',
     'sec.preferment': 'Dag 1 — Fordej',
@@ -2299,6 +2310,10 @@ function bindInputs() {
     const expanded = btn.getAttribute('aria-expanded') === 'true';
     btn.setAttribute('aria-expanded', String(!expanded));
     body.classList.toggle('open', !expanded);
+    // Re-measure the parent flippable card so its --card-h transitions to fit
+    // the new front-face height (the body's max-height snapped 0 ↔ 240).
+    const card = btn.closest('.flippable');
+    if (card && window._fitFlipCard) window._fitFlipCard(card);
   });
 
   // Tap a tick to jump to it
@@ -2541,7 +2556,8 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.setProperty('--card-h', target.scrollHeight + 'px');
   };
   const fitAllFlipCards = () => document.querySelectorAll('.flippable').forEach(fitFlipCard);
-  // Expose for the render() pipeline to call after DOM updates
+  // Expose for the render() pipeline + the adjust-row toggle to call after DOM updates
+  window._fitFlipCard = fitFlipCard;
   window._fitAllFlipCards = fitAllFlipCards;
 
   document.querySelectorAll('.flippable .flip-btn').forEach((btn) => {
